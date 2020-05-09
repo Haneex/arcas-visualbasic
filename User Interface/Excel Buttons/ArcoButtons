@@ -1,0 +1,152 @@
+'---------Creator: Samu Lahti---------
+'---------Module: Arcobuttons---------------
+'------------ArcoButtons------------
+'------------Date: 01/2020------------
+'----------------Rev.0-----------------
+
+'====================================
+Sub AddNewCircuitInst_Click()
+'====================================
+
+MsgBox "Function not available in this version"
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub UpdateDatabaseInst_Click()
+'====================================
+
+MsgBox "Function not available in this version"
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub GenerateInst_Click()
+'====================================
+
+Generate.Show
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub GoBackINST_Click()
+'====================================
+
+ThisWorkbook.Sheets("USER").Activate  'Activate USER sheet'
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub ListsInst_Click()
+'====================================
+
+Lists.Show
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub AddNewCircuitElect_Click()
+'====================================
+
+MsgBox "Function not available in this version"
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub ExportDataElect_Click()
+'====================================
+
+MsgBox "Function not available in this version"
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub UpdateDatabaseElect_Click()
+'====================================
+
+MsgBox "Function not available in this version"
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub SelectionTablesElect_Click()
+'====================================
+
+ThisWorkbook.Sheets("SelectionTables").Activate  'Activate Selection Tables sheet'
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub ModifyDeleteElect_Click()
+'====================================
+
+MsgBox "Function not available in this version"
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub GoBackElect_Click()
+'====================================
+
+ThisWorkbook.Sheets("USER").Activate  'Activate USER sheet'
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub Documents_Click()
+'====================================
+
+Documents.Show
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub ElectEngineering_Click()
+'====================================
+
+Sheet2.Activate  'Active Electrical Engineering sheet'
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub InstEngineering_Click()
+'====================================
+
+Sheet3.Activate  'Active Instrumentation Engineering sheet'
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'====================================
+Sub FillInProjectInfo_Click()
+'====================================
+
+'Set String variable for every entry info'
+Dim ProjectName As String
+Dim Customer As String
+Dim InstDesigner As String
+Dim ElectDesigner As String
+Dim InstAcceptor As String
+Dim ElectAcceptor As String
+Dim InstPublisher As String
+Dim ElectPublisher As String
+
+ProjectInfoForm.Show
+
+
+End Sub
+'-----------------ENDSUB---------------------------
+

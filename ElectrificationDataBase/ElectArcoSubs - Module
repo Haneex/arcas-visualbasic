@@ -1,0 +1,49 @@
+'==========================================================================================================================
+Public Sub CableInfoPrint(ByVal strInfoValue As String, ByVal lColumn As Long, ByVal lCableCount As Long, ByVal lStartRow As Long, ByVal strMainValue As String, Optional ByVal CableNBRColumn As Long)
+'==========================================================================================================================
+'Function:  To print selected value to instrumentation CABLES sheet
+'Input1: strInfoValue as a value to find from CABLES sheet and define which column has that value
+'Input2: lColumn as a value which tells where value is in DATA sheet
+'Input3: lCableCount as  a value to define how many cable is without other info than cable number
+'Input4: lStartRow as a value to define which is first row on CABLES sheet where values needs to be printed (Mainly for device cables to know where trunk cables are already printed)
+'Input5: strMainValue as a value which defines value in DATA sheet that tells which cable needs info printed on CABLES sheet
+'Version History:
+
+On Error GoTo catchError
+Dim strDataBaseExcel As String, strDataBaseExcelSheetDATA As String, strDataBaseExcelSheetCABLES As String
+Dim lLastRowOnCableList As Long, lCableTypeColumn As Long
+Dim i As Long
+Dim strCellValue As String, strCableInfo As String
+
+'Declare variables
+strDataBaseExcel = "Electrification.xlsm"
+strDataBaseExcelSheetDATA = "DATA"
+strDataBaseExcelSheetCABLES = "CABLES"
+
+
+For i = lStartRow To lCableCount
+    If GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, strMainValue) = CableNBRColumn Then
+        strCableInfo = Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetCABLES).Cells(i + 1, 1).Value
+        If Not IsError(Application.Match(strCableInfo, Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetDATA).Cells(1, CableNBRColumn).EntireColumn, 0)) Then 'Check if current column contains cable
+            strCellValue = Workbooks(strDataBaseExcel).Sheets(strDataBaseExcelSheetDATA). _
+            Cells(GetLastRow(strDataBaseExcel, strDataBaseExcelSheetDATA, GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, strMainValue), strCableInfo), lColumn).Value
+            If strCellValue <> vbNullString Then
+                Workbooks(strDataBaseExcel).Worksheets("CABLES").Activate
+                If strCellValue <> "" Then 'Check If value is not empty
+                    Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetCABLES).Cells(i + 1, GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetCABLES, 1, strInfoValue)).Value = strCellValue
+                End If
+            End If
+        End If
+    End If
+Next i
+
+exitSub:
+    Exit Sub
+catchError:
+    MsgBox "Error while trying to copy " & strInfoValue, vbOKOnly, "Error"
+    GoTo exitSub
+
+End Sub
+
+
+

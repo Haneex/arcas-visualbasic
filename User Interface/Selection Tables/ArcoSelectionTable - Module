@@ -1,0 +1,288 @@
+'----------Creator: Samu Lahti--------
+'-------Module: ArcoSelectionTable--------
+'------------Selection Tables---------
+'-------------Date: 01/2020----------
+'------------------Rev.0--------------
+
+Option Explicit   '<---- forces you to declare all your variables
+
+'==========================================================================================================================
+Sub GoBackSelectionTable_Click()
+'==========================================================================================================================
+
+ThisWorkbook.Sheets("Electrical Engineering").Activate  'Activate Electrical Engineering sheet'
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Sub Open400VDirect_Click()
+'==========================================================================================================================
+
+On Error GoTo err
+Dim CurrentFolder As String, TableSheet As String, EndFolder As String 'Sets variables as a String
+Dim file As Workbook
+
+TableSheet = "400V_Direct"
+EndFolder = "\SelectionTables\SelectionTables.xlsm"
+CurrentFolder = (Application.ThisWorkbook.Path) 'Find out where this current main file is located to find end file
+
+'Check if necessary file is it where it should be and then open it
+If CreateObject("Scripting.FileSystemObject").fileExists(CurrentFolder & EndFolder) Then
+    Workbooks.Open Filename:=CurrentFolder & EndFolder, UpdateLinks:=1
+    Sheets(TableSheet).Activate
+Else
+    MsgBox "File not found", vbExclamation, "Error!"
+End If
+
+err:
+    MsgBox "Error occured please try again"
+    Exit Sub
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Sub Open690VDirect_Click()
+'==========================================================================================================================
+On Error GoTo err
+Dim CurrentFolder As String, TableSheet As String, EndFolder As String 'Sets variables as a String
+Dim file As Workbook
+
+TableSheet = "690V_Direct"
+EndFolder = "\SelectionTables\SelectionTables.xlsm"
+CurrentFolder = (Application.ThisWorkbook.Path) 'Find out where this current main file is located to find end file
+
+'Check if necessary file is it where it should be and then open it
+If CreateObject("Scripting.FileSystemObject").fileExists(CurrentFolder & EndFolder) Then
+    Workbooks.Open Filename:=CurrentFolder & EndFolder, UpdateLinks:=1
+    Sheets(TableSheet).Activate
+Else
+    MsgBox "File not found", vbExclamation, "Error!"
+End If
+
+err:
+    MsgBox "Error occured please try again"
+    Exit Sub
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Sub Open400VVFD_Click()
+'==========================================================================================================================
+On Error GoTo err
+Dim CurrentFolder As String, TableSheet As String, EndFolder As String 'Sets variables as a String
+Dim file As Workbook
+
+TableSheet = "400V_VFD"
+EndFolder = "\SelectionTables\SelectionTables.xlsm"
+CurrentFolder = (Application.ThisWorkbook.Path) 'Find out where this current main file is located to find end file
+
+'Check if necessary file is it where it should be and then open it
+If CreateObject("Scripting.FileSystemObject").fileExists(CurrentFolder & EndFolder) Then
+    Workbooks.Open Filename:=CurrentFolder & EndFolder, UpdateLinks:=1
+    Sheets(TableSheet).Activate
+Else
+    MsgBox "File not found", vbExclamation, "Error!"
+End If
+
+err:
+    MsgBox "Error occured please try again"
+    Exit Sub
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Sub Open690VVFD_Click()
+'==========================================================================================================================
+On Error GoTo err
+Dim CurrentFolder As String, TableSheet As String, EndFolder As String 'Sets variables as a String
+Dim file As Workbook
+
+TableSheet = "690V_VFD"
+EndFolder = "\SelectionTables\SelectionTables.xlsm"
+CurrentFolder = (Application.ThisWorkbook.Path) 'Find out where this current main file is located to find end file
+
+'Check if necessary file is it where it should be and then open it
+If CreateObject("Scripting.FileSystemObject").fileExists(CurrentFolder & EndFolder) Then
+    Workbooks.Open Filename:=CurrentFolder & EndFolder, UpdateLinks:=1
+    Sheets(TableSheet).Activate
+Else
+    MsgBox "File not found", vbExclamation, "Error!"
+End If
+
+err:
+    MsgBox "Error occured please try again"
+    Exit Sub
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Public Sub PrintPDFSelectionTable_Click()
+'==========================================================================================================================
+
+Dim PDFFileName As Variant
+Dim iCounter As Integer, cCounter As Integer 'Set CombineCounter and integerCounter as Integers
+Dim pCounter As Integer, rCounter As Integer 'Set pageCounter and randomCounter as Integer
+Dim EndFolder As String, CurrentFolder As String 'Set Folder variables as a String
+
+'Format Counter Values
+iCounter = 0
+cCounter = 0
+rCounter = 0
+pCounter = 0
+
+
+'Erase public array and integer
+Erase PublicSelectionTableValue
+PublicSelectionTableCombine = False
+
+'Show Selection Table Form User Form for user
+SelectionTableForm.Show
+
+'Ask folder and file name from user
+PDFFileName = Application.GetSaveAsFilename( _
+InitialFileName:="Selection Table", _
+FileFilter:="PDF, *.pdf", _
+Title:="Save As PDF")
+
+'Declare what user wants to be printed and store value to public integer
+'Value 0= 400V Direct 'Value 1= 400V VFD 'Value 2= 690V Direct 'Value 3= 690V VFD 'Value 4= Print all
+
+If PDFFileName <> False Then
+
+    'Open Selection Table excel for printing
+    EndFolder = "\SelectionTables\SelectionTables.xlsm"
+    CurrentFolder = (Application.ThisWorkbook.Path) 'Find out where this current main file is located to find end file
+    Workbooks.Open Filename:=CurrentFolder & EndFolder, UpdateLinks:=1
+
+    Application.ScreenUpdating = False 'Set Screen Updating to false to help code run
+    
+    'If User doesn't want to combine then run this part of the code
+    If PublicSelectionTableCombine = False Then
+    
+        'If User has selected "Print All" -value without combine then run this part of the code
+        If PublicSelectionTableValue(4) = 4 Then
+            For iCounter = 1 To Worksheets.Count
+                With Worksheets(iCounter).PageSetup
+                    .CenterHeader = "Selection Table"
+                    .Orientation = xlLandscape
+                    '.PrintArea = Here we can set finding for last column and row if needed
+                    .Zoom = False
+                    .PaperSize = xlPaperA4
+                    '.FitPagesToTall = False
+                    '.FitPagesToWide = 1
+                End With      
+                    Worksheets(iCounter).ExportAsFixedFormat _
+                    Type:=xlTypePDF, _
+                    Filename:=PDFFileName & "_" & iCounter, _
+                    Quality:=xlQualityStandard, _
+                    IncludeDocProperties:=False, _
+                    IgnorePrintAreas:=False, _
+                    OpenAfterPublish:=True
+                    'From:= Here can be set from page to start printing if needed
+                    'To:= End page to end printing
+            Next
+    
+        'Close Selection Table excel after printing is done
+        ActiveWorkbook.Close SaveChanges:=False
+        
+        'If user has selected any other value than "Print all" without combine then this code will be executed
+        ElseIf PublicSelectionTableValue(4) <> 4 Then
+            For pCounter = 0 To 3
+                If PublicSelectionTableValue(pCounter) = pCounter Then
+                    With Worksheets(pCounter + 1).PageSetup
+                        .CenterHeader = "Selection Table"
+                        .Orientation = xlLandscape
+                        '.PrintArea = Here we can set finding for last column and row if needed
+                        .Zoom = False
+                        .PaperSize = xlPaperA4
+                        '.FitPagesToTall = False
+                        '.FitPagesToWide = 1
+                    End With
+                    ActiveWorkbook.ExportAsFixedFormat _
+                    Type:=xlTypePDF, _
+                    Filename:=PDFFileName & "_" & pCounter, _
+                    Quality:=xlQualityStandard, _
+                    IncludeDocProperties:=False, _
+                    IgnorePrintAreas:=False, _
+                    OpenAfterPublish:=True, _
+                    From:=pCounter + 1, _
+                    To:=pCounter + 1
+                End If
+            Next
+    
+        'Close Selection Table excel after printing is done
+        ActiveWorkbook.Close SaveChanges:=False
+        End If 
+    'If User wants to combine PDF's then this part will be run
+    ElseIf PublicSelectionTableCombine = True Then
+        If PublicSelectionTableValue(4) = 4 Then
+            With ActiveSheet.PageSetup
+                .CenterHeader = "Selection Table"
+                .Orientation = xlLandscape
+                '.PrintArea = Here we can set finding for last column and row if needed
+                .Zoom = False
+                .PaperSize = xlPaperA4
+                '.FitPagesToTall = False
+                '.FitPagesToWide = 1
+            End With       
+                ActiveWorkbook.ExportAsFixedFormat _
+                Type:=xlTypePDF, _
+                Filename:=PDFFileName, _
+                Quality:=xlQualityStandard, _
+                IncludeDocProperties:=False, _
+                IgnorePrintAreas:=False, _
+                OpenAfterPublish:=True
+                'From:= Here can be set from page to start printing if needed
+                'To:= End page to end printing
+    
+        'Close Selection Table excel after printing is done
+        ActiveWorkbook.Close SaveChanges:=False
+        ElseIf PublicSelectionTableValue(4) <> 4 Then
+            For cCounter = 0 To 3
+                If PublicSelectionTableValue(cCounter) = cCounter Then
+                    Sheets(cCounter + 1).Move Before:=Sheets(1)
+                    rCounter = rCounter + 1 'Add value to rCounter to see how many pages needs to be printed
+                End If    
+            Next
+            With ActiveSheet.PageSetup
+                .CenterHeader = "Selection Table"
+                .Orientation = xlLandscape
+                '.PrintArea = Here we can set finding for last column and row if needed
+                .Zoom = False
+                .PaperSize = xlPaperA4
+                '.FitPagesToTall = False
+                '.FitPagesToWide = 1
+            End With
+                ActiveWorkbook.ExportAsFixedFormat _
+                Type:=xlTypePDF, _
+                Filename:=PDFFileName, _
+                Quality:=xlQualityStandard, _
+                IncludeDocProperties:=False, _
+                IgnorePrintAreas:=False, _
+                OpenAfterPublish:=True, _
+                From:=1, _
+                To:=rCounter - 1
+        'Replace sheets
+        Sheets("400V_Direct").Move Before:=Worksheets(1)
+        Sheets("400V_VFD").Move After:=Worksheets("400V_Direct")
+        Sheets("690V_Direct").Move After:=Worksheets("400V_VFD")
+        Sheets("690V_VFD").Move After:=Worksheets("690V_Direct")
+                
+        'Close Selection Table excel after printing is done
+        ActiveWorkbook.Close SaveChanges:=True 
+        End If
+    End If  
+    Application.ScreenUpdating = True 'Set Screen Updating to true as code has been terminated
+    MsgBox "PDF's Printed succesfully"
+End If
+
+
+
+End Sub
+'------------------ENDSUB----------------------
+

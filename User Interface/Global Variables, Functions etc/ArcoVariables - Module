@@ -1,0 +1,13 @@
+'---------Creator: Samu Lahti---------
+'--------Module: ArcoVariables---------
+'----------Global Variables-----
+'------------Date: 01/2020------------
+'---------------Rev.0--------------
+
+'Set variables to get data from SelectionTableForm code
+Public PublicSelectionTableCombine As Boolean
+Public PublicSelectionTableValue(4) As Integer '/Value 0= 400V Direct 'Value 1= 400V VFD 'Value 2= 690V Direct 'Value 3= 690V VFD 'Value 4= Print all
+
+
+'List Public variables
+Public lKeyColumn As Long

@@ -1,0 +1,134 @@
+'--------------Creator: Samu Lahti-----------
+'-------Userform: SelectionTableForm Code---------
+'----------------Selection Tables------------
+'----------------Date: 01/2020--------------
+'---------------------Rev.0----------------
+
+Option Explicit   '<---- forces you to declare all your variables
+
+'==========================================================================================================================
+Private Sub Cancel_Click()
+'==========================================================================================================================
+
+Unload Me
+
+End Sub
+'------------ENDSUB------------------
+
+'==========================================================================================================================
+Private Sub CheckBox400VDirect_Click()
+'==========================================================================================================================
+
+If CheckBox400VDirect.Value = True Then
+
+    CheckBoxSelectAll.Value = False
+
+End If
+
+End Sub
+'------------ENDSUB------------------
+
+'==========================================================================================================================
+Private Sub CheckBox400VVFD_Click()
+'==========================================================================================================================
+
+If CheckBox400VVFD.Value = True Then
+
+    CheckBoxSelectAll.Value = False
+
+End If
+
+End Sub
+'------------ENDSUB------------------
+
+'==========================================================================================================================
+Private Sub CheckBox690VDirect_Click()
+'==========================================================================================================================
+
+If CheckBox690VDirect.Value = True Then
+
+    CheckBoxSelectAll.Value = False
+
+End If
+
+End Sub
+'------------ENDSUB------------------
+
+'==========================================================================================================================
+Private Sub CheckBox690VVFD_Click()
+'==========================================================================================================================
+
+If CheckBox690VVFD.Value = True Then
+
+    CheckBoxSelectAll.Value = False
+
+End If
+
+End Sub
+'------------ENDSUB------------------
+
+'==========================================================================================================================
+Private Sub CheckBoxSelectAll_Click()
+'==========================================================================================================================
+
+If CheckBoxSelectAll.Value = True Then
+
+    CheckBox400VDirect.Value = False
+    CheckBox400VVFD.Value = False
+    CheckBox690VDirect = False
+    CheckBox690VVFD = False
+
+End If
+
+End Sub
+'------------ENDSUB------------------
+
+'==========================================================================================================================
+Public Sub PrintSelectionTable_Click()
+'==========================================================================================================================
+
+'Declare if user wants pdf's to be combined and store that value to public boolean
+If CombineYes = True Then
+    PublicSelectionTableCombine = True
+End If
+
+'Declare what user wants to be printed and store value to public integer
+'Value 0= 400V Direct
+'Value 1= 400V VFD
+'Value 2= 690V Direct
+'Value 3= 690V VFD
+'Value = Print all
+If (CheckBox400VDirect.Value = True) = True Then
+    PublicSelectionTableValue(0) = 0
+End If
+If (CheckBox400VVFD.Value = True) = True Then
+    PublicSelectionTableValue(1) = 1
+End If
+If (CheckBox690VDirect = True) = True Then
+    PublicSelectionTableValue(2) = 2
+End If
+If (CheckBox690VVFD = True) = True Then
+    PublicSelectionTableValue(3) = 3
+End If
+If (CheckBoxSelectAll = True) = True Then
+    PublicSelectionTableValue(4) = 4
+End If
+
+Unload Me
+
+End Sub
+'------------ENDSUB------------------
+
+'==========================================================================================================================
+Private Sub UserForm_Initialize()
+'==========================================================================================================================
+
+    'Add Items to show in combobox
+    CheckBox400VDirect.Value = False
+    CheckBox400VVFD.Value = False
+    CheckBox690VDirect.Value = False
+    CheckBox690VVFD.Value = False
+    CheckBoxSelectAll.Value = False
+
+End Sub
+'------------ENDSUB------------------

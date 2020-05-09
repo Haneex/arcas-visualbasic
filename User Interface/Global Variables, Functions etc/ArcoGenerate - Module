@@ -1,0 +1,398 @@
+'-----Creator: Samu Lahti------
+'---------Module: 2---------
+'--DWG generate and dxf to dwg--
+'-------Date: 01/2020-------
+'-----------Rev.0-------------
+
+Public Sub GenerateSUB(ByVal Workbook As String)
+
+    Dim sht As Worksheet
+    Dim LRow As Long
+    Dim lCol As Long
+    Dim Var As String
+  
+    Dim outDir As String
+    Dim GenPath As String
+    Dim templateDir As String
+    Dim template As String
+    Dim fileName As String
+    Dim DataSheet As String
+    Dim ids As Collection
+    Dim dids As Collection
+    Dim Tags As Collection
+    Dim Dwgs As Collection
+    Dim valueArray() As Variant
+    Dim sfileName As String
+    
+    Set dids = New Collection
+    Set ids = New Collection
+    Set Tags = New Collection
+    Set Dwgs = New Collection
+  
+
+
+    'Find out where this current main file is located to find end file
+    sfileName = (Application.ThisWorkbook.Path) & "\DataBase Excels\" & Workbook
+
+    Set closedBook = Workbooks.Open(sfileName)
+
+    Set sht = Workbooks("ARCO_ENGINEERING.xlsm").Worksheets("GENERATEINFO")
+    DataSheet = "DATA"
+    Item = "ID"
+  
+    LRow = sht.Cells(Rows.Count, 1).End(xlUp).Row
+    lCol = sht.Cells(1, Columns.Count).End(xlToLeft).Column
+  
+  For i = 1 To LRow
+     Var = CStr(sht.Cells().Item(i, 1))
+     Select Case UCase(Var)
+     Case "TEMPLATE DIRECTORY ELECT"
+        templateDir = CStr(sht.Cells().Item(i, 2))
+     Case "TEMPLATE DIRECTORY INST"
+        templateDir = CStr(sht.Cells().Item(i, 2))
+     Case "OUTPUT DIRECTORY ELECT"
+        outDir = CStr(sht.Cells().Item(i, 2))
+     Case "OUTPUT DIRECTORY INTS"
+        outDir = CStr(sht.Cells().Item(i, 2))
+     Case "TEMPLATE"
+        template = CStr(sht.Cells().Item(i, 2))
+     Case "TAG COLUMN"
+        Item = CStr(sht.Cells().Item(i, 2))
+     Case "FILENAME"
+        fileName = CStr(sht.Cells().Item(i, 2))
+     Case "INPUT SHEET"
+        DataSheet = UCase(CStr(sht.Cells().Item(i, 2)))
+     End Select
+  Next i
+  
+  If Dir(templateDir, vbDirectory) = vbNullString Then
+     answer = MsgBox("""" + templateDir + """ template dxf directory do not exists. Create it and try again.", vbOKOnly + vbCritical, "Dxf Generation")
+     Exit Sub
+  End If
+  
+  If Dir(outDir, vbDirectory) = vbNullString Then
+     answer = MsgBox("""" + outDir + """ output file directory do not exists. Create it and try again.", vbOKOnly + vbCritical, "Dxf Generation")
+     Exit Sub
+  End If
+  
+  GenPath = Environ("TEMP") + "\gen.txt"
+  
+  
+  Set sht = ThisWorkbook.Worksheets(DataSheet)
+
+  LRow = sht.Cells(Rows.Count, 1).End(xlUp).Row
+  lCol = sht.Cells(1, Columns.Count).End(xlToLeft).Column
+  
+  For i = 1 To lCol
+     Var = UCase(CStr(sht.Cells().Item(1, i)))
+     Select Case Var
+     Case Item
+       itemNo = i
+     End Select
+  Next i
+  
+  
+  For i = 1 To lCol
+     Var = UCase(CStr(sht.Cells().Item(1, i)))
+     Select Case Var
+     Case "ID"
+       ids.Add i
+     Case "OUTPUTFILE"
+       dids.Add i
+     End Select
+  Next i
+    
+  
+  
+  maxRows = 0
+  nRows = 1
+  prevRow = ""
+  
+
+ 
+  For j = 2 To LRow
+     If sht.Rows(j).EntireRow.Hidden Then
+     Else
+         Var = UCase(CStr(sht.Cells().Item(j, itemNo)))
+         If (Var = prevRow) Then
+            nRows = nRows + 1
+            If (nRows > maxRows) Then
+               maxRows = nRows
+            End If
+         Else
+            If (nRows > maxRows) Then
+               maxRows = nRows
+            End If
+       
+            prevRow = Var
+            nRows = 1
+         End If
+         
+         
+         For Each k In ids
+            Var = UCase(CStr(sht.Cells().Item(j, k)))
+             If (Var <> "" And CollectionContains(Tags, Var) = False) Then
+                Tags.Add Var
+            End If
+         Next k
+         For Each k In dids
+            Var = CStr(sht.Cells().Item(j, k))
+             If (Var <> "" And CollectionContains(Dwgs, Var) = False) Then
+                Dwgs.Add Var
+            End If
+         Next k
+    End If
+    
+  Next j
+  
+  
+  Open GenPath For Output As #1
+  Var = ""
+  tagArray = CollectionToArray(Tags)
+  For i = 0 To Tags.Count - 1
+     If (i > 1) Then
+         Var = Var + ";"
+     End If
+     Var = Var + """" + tagArray(i) + """"
+  Next i
+  
+  Print #1, """" + "DRAWING" + """;" + """" + "TEMPLATE" + """;" + Var
+  
+  
+  ReDim valueArray(0 To Tags.Count - 1)
+  
+  
+  For k = 1 To Dwgs.Count
+     templateDwg = ""
+     For M = 0 To Tags.Count - 1
+        valueArray(M) = ""
+     Next M
+     
+     For j = 2 To LRow
+         If sht.Rows(j).EntireRow.Hidden Then
+         Else
+             For Each i In ids
+       
+                currTemplate = sht.Cells().Item(j, i - 1)
+                currTag = UCase(sht.Cells().Item(j, i))
+                currValue = sht.Cells().Item(j, i + 1)
+                currDwg = sht.Cells().Item(j, i + 2)
+                
+                If (currTag <> "" And Dwgs(k) = currDwg) Then
+                    If currTemplate <> "" And templateDwg = "" Then
+                       templateDwg = currTemplate
+                    End If
+             
+                    M = 0
+                    Do While (M < Tags.Count)
+                       If (currTag = tagArray(M)) Then
+                          valueArray(M) = currValue
+                          M = Tags.Count
+                       End If
+                       M = M + 1
+                    Loop
+                End If
+             Next i
+          End If
+      Next j
+  
+      testfile = templateDir + "/" + templateDwg
+      If (InStr(1, UCase(testfile), ".dxf") = 0) Then
+         testfile = testfile + ".dxf"
+      End If
+      
+      
+      If Dir(testfile, vbFile) = vbNullString Then
+          answer = MsgBox("""" + testfile + """ template file do not exists. Create it and try again.", vbOKOnly + vbCritical, "Dxf Generation")
+          Close #1
+          Exit Sub
+      End If
+  
+      Var = """" + Dwgs(k) + """;" + """" + templateDwg + """;"
+      For M = 0 To Tags.Count - 1
+         Var = Var + """" + valueArray(M) + """;"
+      Next M
+  
+  
+      Print #1, Var
+  Next k
+  
+
+
+  Close #1
+  
+  
+  If Dwgs.Count > 0 Then
+      answer = MsgBox(CStr(Dwgs.Count) + " dxf drawing will be generated. Do you want to proceed?", vbYesNo + vbQuestion, "Dxf Generation")
+  
+      If answer = vbYes Then
+         Var = "dxfgen -td " + templateDir + " -i " + GenPath + " -od " + outDir + " -t " + template + " -o " + fileName
+         D = Shell(Var)
+      End If
+  Else
+      answer = MsgBox("No drawings to be generated.", vbInformation, "Dxf Generation")
+  End If
+  
+  
+End Sub
+Sub toDwg_Click()
+  Dim sht As Worksheet
+  Dim LRow As Long
+  Dim lCol As Long
+  Dim Var As String
+  
+  Dim outDir As String
+  Dim GenPath As String
+  Dim AcadPath As String
+  Dim fileName As String
+  Dim DataSheet As String
+  Dim dids As Collection
+  Dim Dwgs As Collection
+  Dim valueArray() As Variant
+  
+  Set dids = New Collection
+  Set Dwgs = New Collection
+   
+  Set sht = ThisWorkbook.Worksheets("CONFIG")
+  DataSheet = "DATA"
+  Item = "ID"
+  
+  LRow = sht.Cells(Rows.Count, 1).End(xlUp).Row
+  lCol = sht.Cells(1, Columns.Count).End(xlToLeft).Column
+  
+  For i = 1 To LRow
+     Var = CStr(sht.Cells().Item(i, 1))
+     Select Case UCase(Var)
+     Case "OUTPUT DIRECTORY"
+        outDir = CStr(sht.Cells().Item(i, 2))
+     Case "FILENAME"
+        fileName = CStr(sht.Cells().Item(i, 2))
+     Case "AUTOCAD"
+        AcadPath = CStr(sht.Cells().Item(i, 2))
+     End Select
+     
+  Next i
+  
+  If Dir(outDir, vbDirectory) = vbNullString Then
+     answer = MsgBox("""" + outDir + """ output file directory do not exists.", vbOKOnly + vbCritical, "Dxf Generation")
+     Exit Sub
+  End If
+  
+  GenPath = Environ("TEMP") + "\todwg.scr"
+  
+  
+  Set sht = ThisWorkbook.Worksheets(DataSheet)
+
+  LRow = sht.Cells(Rows.Count, 1).End(xlUp).Row
+  lCol = sht.Cells(1, Columns.Count).End(xlToLeft).Column
+  
+  For i = 1 To lCol
+     Var = UCase(CStr(sht.Cells().Item(1, i)))
+     Select Case Var
+     Case Item
+       itemNo = i
+     End Select
+  Next i
+ 
+  
+  For i = 1 To lCol
+     Var = UCase(CStr(sht.Cells().Item(1, i)))
+     Select Case Var
+     Case "OUTPUTFILE"
+       dids.Add i
+     End Select
+  Next i
+    
+  
+  
+  maxRows = 0
+  nRows = 1
+  prevRow = ""
+  
+
+ 
+  For j = 2 To LRow
+     If sht.Rows(j).EntireRow.Hidden Then
+     Else
+         Var = UCase(CStr(sht.Cells().Item(j, itemNo)))
+         If (Var = prevRow) Then
+            nRows = nRows + 1
+            If (nRows > maxRows) Then
+               maxRows = nRows
+            End If
+         Else
+            If (nRows > maxRows) Then
+               maxRows = nRows
+            End If
+       
+            prevRow = Var
+            nRows = 1
+         End If
+         
+         
+         For Each k In dids
+            Var = CStr(sht.Cells().Item(j, k))
+             If (Var <> "" And CollectionContains(Dwgs, Var) = False) Then
+                Dwgs.Add Var
+            End If
+         Next k
+    End If
+    
+  Next j
+  
+  
+  Open GenPath For Output As #1
+  Var = ""
+  
+  
+  For k = 1 To Dwgs.Count
+      Print #1, "OPEN"
+      Print #1, outDir + "/" + Dwgs(k) + ".dxf"
+      Print #1, "SAVEAS"
+      Print #1, ""
+      Print #1, outDir + "/" + Dwgs(k) + ".dwg"
+
+  Next k
+  Print #1, "QUIT"
+  Close #1
+  
+  
+  If Dwgs.Count > 0 Then
+      answer = MsgBox(CStr(Dwgs.Count) + " dxf drawing will be converted to dwg. Do you want to proceed?", vbYesNo + vbQuestion, "Dxf Generation")
+  
+      If answer = vbYes Then
+         Var = AcadPath + " /b " + GenPath
+         D = Shell(Var)
+      End If
+  Else
+      answer = MsgBox("No drawings to be generated.", vbInformation, "Dxf Generation")
+  End If
+  
+  
+End Sub
+
+
+Function CollectionContains(myCol As Collection, checkVal As Variant) As Boolean
+    On Error Resume Next
+    CollectionContains = False
+    Dim it As Variant
+    For Each it In myCol
+        If it = checkVal Then
+            CollectionContains = True
+            Exit Function
+        End If
+    Next
+End Function
+
+Function CollectionToArray(c As Collection) As Variant()
+
+    Dim A() As Variant: ReDim A(0 To c.Count - 1)
+    
+    Dim i As Integer
+
+    For i = 1 To c.Count
+        A(i - 1) = c.Item(i)
+    Next
+    CollectionToArray = A
+End Function
+

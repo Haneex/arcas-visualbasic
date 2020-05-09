@@ -1,0 +1,22 @@
+'------------Creator: Samu Lahti--------------
+'----------Instrumentation Database----------
+'--Run code for instrumentation database-----
+'--------------Date: 03/2020-------
+'------------------Rev.0-------------
+
+Option Explicit   '<---- forces you to declare all your variables
+
+
+'==========================================================================================================================
+Private Sub Workbook_Open()
+'==========================================================================================================================
+'Function:  To Run code when instrumentation database is opened
+'Version History:
+
+Call CABLESUPDATE()
+ 
+End Sub
+'------------------ENDSUB----------------------
+
+
+

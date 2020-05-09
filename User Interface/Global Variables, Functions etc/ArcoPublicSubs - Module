@@ -1,0 +1,330 @@
+'-------Creator: Samu Lahti---------
+'------Module: ArcoPublicSubs---------
+'----------Public Subs----------
+'---------Date: 01/2020------------
+'-------------Rev.0--------------
+
+'Option Explicit   '<---- forces you to declare all your variables
+
+'==========================================================================================================================
+Public Sub GenerateList(ByVal strWorkbook As String, ByVal strDataBaseExcel As String, ByVal strDataBaseSheetName As String, ByVal strListSheetName As String)
+'==========================================================================================================================
+'Function: Generates list from template list specified by user.
+'Input1: strWorkBook to give workbook where values needs to be saved
+'Input2: strWorkSheet to give worksheet where value needs to saved
+'Input3: strRow to specify which row value needs to saved
+'Input4: strColumn to specify which column value needs to saved
+'Input5: strValue value which needs to be saved
+'Output: -
+'Note!: See Lists userform code
+'Version History:
+
+On Error GoTo catchError
+
+'Declare variables
+Dim lLastRowOnDataBase As Long, lLastColumnOnDataBase As Long, lLastColumnOnList As Long
+Dim ListRange As Range
+Dim GenerateValue() As String, ListValues() As String
+Dim strGenerateValue As String
+Dim i As Long, j As Long, k As Long
+Dim GenerateValueColumn As Long, GenerateValueColumn2 As Long
+
+lLastRowOnDataBase = GetLastRow(strDataBaseExcel, strDataBaseSheetName, 1)
+lLastColumnOnDataBase = GetLastColumn(strDataBaseExcel, strDataBaseSheetName, 1, "")
+lLastColumnOnList = GetLastColumn(strWorkbook, strListSheetName, 7, "")
+
+'Set range (option)
+'Set ListRange = FrontSheetWorkSheet.Range(Cells(1,1), Cells(lLastRowOnDataBase, lLastColumnOnDataBase))
+
+'Save generate values to arrays
+For i = 2 To lLastColumnOnList
+    ReDim Preserve GenerateValue(i)
+    GenerateValue(i - 1) = Workbooks(strWorkbook).Worksheets(strListSheetName).Cells(7, i + 1).Value
+Next i
+
+'Paste values to list
+For k = 1 To lLastColumnOnDataBase
+    For j = 7 To lLastRowOnDataBase + 7
+        strGenerateValue = Workbooks(strDataBaseExcel).Worksheets(strDataBaseSheetName).Cells(1, k)
+        GenerateValueColumn = GetLastColumn(strDataBaseExcel, strDataBaseSheetName, 1, strGenerateValue)
+        For n = 0 To UBound(GenerateValue)
+            If GenerateValue(n) = "$" & strGenerateValue & "$" Then
+            GenerateValueColumn2 = n
+            Exit For
+            End If
+        Next n
+        Workbooks(strWorkbook).Worksheets(strListSheetName).Cells(j, GenerateValueColumn2 + 2) = Workbooks(strDataBaseExcel).Worksheets(strDataBaseSheetName).Cells(j - 5, GenerateValueColumn)
+    Next j
+Next k
+
+'Erase vaArray to prevent any leftovers
+Erase GenerateValue
+
+exitSub:
+    Exit Sub
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while generating list, please try again", vbOKOnly, "Error"
+    GoTo exitSub
+
+End Sub
+'-------------------ENDSUB-------------------------
+
+'==========================================================================================================================
+Public Sub FillReportFrontSheet(ByVal strWorkbook As String, ByVal strWorkSheet As String, ByVal strRow As String)
+'==========================================================================================================================
+'Function: Fills front sheet for report
+'Input1: strWorkBook to give workbook where value needs to be saved
+'Input2: strWorkSheet to give worksheet where value needs to saved
+'Input3: strRow to specify which row contains values for this document on documents sheet in ARCO_ENGINEERING
+'Input4: strColumn to specify which column value needs to saved
+'Input5: strValue value which needs to be saved
+'Output: -
+'Note!:
+'Version History:
+
+On Error GoTo catchError
+'Declare variables
+Dim FrontSheetWorkSheet As Worksheet
+Dim xCell As Object
+Dim FrontSheetRange As Range
+Dim ArcoWorkbook As String, ArcoDocumentsSheet As String
+Dim strDate As String
+
+ArcoWorkbook = "Arco_ENGINEERING.xlsm" 'Specify main excel name to variable
+ArcoDocumentsSheet = "Documents" 'Specify main excel document sheet to variable
+strDate = Date
+
+'Set FrontSheetWorkSheet = Workbooks(strWorkbook).Worksheets(strWorkSheet)
+Set FrontSheetRange = Workbooks(strWorkbook).Worksheets(strWorkSheet).Range("A1:U40")
+
+'Fill values by finding key words and replacing them when found
+For Each xCell In FrontSheetRange
+    If xCell = "$Documentnumber$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Document number", LookIn:=xlValues).Column).Value
+    End If
+     If xCell = "$Customer$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets("ProjectInfo").Range("A2").Value
+    End If
+    If xCell = "$DocumentTitle$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Title 1", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$CustomerDocID$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Document Customer Number", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Document Revision", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Date$" Then
+    xCell = strDate
+    End If
+    If xCell = "$Status$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Status", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev1$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev1", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev1Design$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev1Design", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev1Approved$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev1Approved", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev1Issued$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev1Issued", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev2$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev2", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev2Design$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev2Design", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev2Approved$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev2Approved", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev2Issued$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev2Issued", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev3$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev3", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev3Design$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev3Design", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev3Approved$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev3Approved", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev3Issued$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev3Issued", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev4$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev4", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev4Design$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev4Design", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev4Approved$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev4Approved", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev4Issued$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev4Issued", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev5$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev5", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev5Design$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev5Design", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev5Approved$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev5Approved", LookIn:=xlValues).Column).Value
+    End If
+    If xCell = "$Rev5Issued$" Then
+    xCell = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strRow, Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Rev5Issued", LookIn:=xlValues).Column).Value
+    End If
+Next xCell
+
+exitSub:
+    Exit Sub
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while generating front sheet, please try again", vbOKOnly, "Error"
+    GoTo exitSub
+
+End Sub
+'-------------------ENDSUB-------------------------
+
+'==========================================================================================================================
+Public Sub SaveValue(ByVal strWorkbook As String, ByVal strWorkSheet As String, ByVal strRow As Long, ByVal strColumn As Long, ByVal strValue As String)
+'==========================================================================================================================
+'Function: Public function to save value to specified workbook and -sheet with specified coordinaters
+'Input1: strWorkBook to give workbook where value needs to be saved
+'Input2: strWorkSheet to give worksheet where value needs to saved
+'Input3: strRow to specify which row value needs to saved
+'Input4: strColumn to specify whicfffh column value needs to saved
+'Input5: strValue value which needs to be saved
+'Output: -
+'Version History:
+
+If strWorkbook = "" Then Exit Sub
+If strWorkSheet = "" Then Exit Sub
+
+Workbooks(strWorkbook).Worksheets(strWorkSheet).Cells(strRow, strColumn).Value = strValue
+
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Public Sub ListComparison1(ByVal strComparisonList As String, ByVal strNewList As String, ByVal lKeyColumn1 As Long, ByVal strComparisonListName As String)
+'==========================================================================================================================
+'Function: Public function to do list comparison between two generated lists
+'Input1: strBaseList as a baselist which will be compared to input2 strComparisonList variable
+'Input2: strComparisonList as a list which will be modified and colored if changes is found
+'Input3: lKeyColumn1 as a column which will be the key column to compare
+'Input4:
+'Input5:
+'Output: -
+'Version History:
+
+Dim lLastRowOnNewList As Long, lLastColumnOnNewList As Long 'Variables for new report
+Dim lLastRowOnComparisonList As Long  'Variables for comparison report
+Dim lKeyValueColumnOnComparisonList As Long, lKeyValueRowOnComparisonList As Long 'Help variables to found columns and rows
+Dim strNewListKeyValue As String, strComparisonListKeyValue As String 'Variables for key values on both reports
+Dim i As Long
+Dim strLastValue As String
+
+'Check if comparison report file is open and if it isn't, then open it as a closed workbook
+If IsFileOpen(strComparisonList) = False Then
+    Set closedBook = Workbooks.Open(strComparisonList)
+End If
+
+'Find last row and column in the new report
+lLastColumnOnNewList = GetLastColumn(strNewList, "List", 6, "")
+lLastRowOnNewList = GetLastRow(strNewList, "List", lKeyColumn1, "")
+
+'Find last row on comparison report
+lLastRowOnComparisonList = GetLastRow(strComparisonListName, "List", lKeyColumn1, "")
+
+'Set value 4 to i variable as it is the first row on the reports
+i = 7
+
+'Run Changes to a report (new and modified)
+Do While i <= lLastRowOnNewList
+
+    'Find key value on the new report
+    strNewListKeyValue = Workbooks(strNewList).Sheets("List").Cells(i, lKeyColumn1).Value
+
+    'Check if comparison report has the same key value in it's key column
+    If Not IsError(Application.Match(strNewListKeyValue, Workbooks(strComparisonListName).Worksheets("List").Cells(1, lKeyColumn1).EntireColumn, 0)) Then
+
+        'If key value is found in comparison report, find row where it is found
+        lKeyValueRowOnComparisonList = GetLastRow(strComparisonListName, "List", lKeyColumn1, strNewListKeyValue)
+
+        'Enter to a for loop to check column values and if they're changed
+        For j = 1 To lLastColumnOnNewList
+
+            'Check if new list has a different value in the cell than the comparison file
+            If Workbooks(strNewList).Worksheets("List").Cells(i, j).Value <> Workbooks(strComparisonListName).Worksheets("List").Cells(lKeyValueRowOnComparisonList, j).Value Then
+                'If value is different paint with yellow color
+                Workbooks(strNewList).Worksheets("List").Cells(i, j).Interior.ColorIndex = 6
+                'And comment cells with old value
+                strLastValue = CStr(Workbooks(strComparisonListName).Worksheets("List").Cells(lKeyValueRowOnComparisonList, j).Value)
+                If Not Workbooks(strNewList).Worksheets("List").Cells(i, j).Comment Is Nothing Then Workbooks(strNewList).Worksheets("List").Cells(i, j).Comment.Delete
+                Workbooks(strNewList).Worksheets("List").Cells(i, j).AddComment "Previous value"
+                Workbooks(strNewList).Worksheets("List").Cells(i, j).Comment.Text "Old Value: " & strLastValue
+            End If
+        Next j
+
+    'If comparison file doesn't contain the key value, it must be new so therefore colored with green
+    Else
+
+        'Color with green
+        For j = 1 To lLastColumnOnNewList
+            Workbooks(strNewList).Sheets("List").Cells(i, j).Interior.ColorIndex = 4
+        Next j
+
+    End If
+
+    i = i + 1
+Loop
+
+'==============================
+
+'Set value 4 to i variable as it is the first row on the reports
+i = 7
+
+'Run Changes to a report (deleted)
+Do While i <= lLastRowOnComparisonList
+
+    'Find key value on the comparison report
+    strComparisonListKeyValue = Workbooks(strComparisonListName).Sheets("List").Cells(i, lKeyColumn1).Value
+
+    'Check if new report has the same key value in it's key column
+    If IsError(Application.Match(strComparisonListKeyValue, Workbooks(strNewList).Worksheets("List").Cells(1, lKeyColumn1).EntireColumn, 0)) Then
+
+        'Copy row to be pasted on the new list as deleted list
+        Workbooks(strComparisonListName).Sheets("List").Rows(i).EntireRow.Copy Destination:=Workbooks(strNewList).Sheets("List").Range("A" & lLastRowOnNewList + (i - 6))
+
+        'Paste row to a new list to bottom
+        'Workbooks(strNewList).Sheets("List").Rows(lLastRowOnNewList + (i - 3)).PasteSpecial Paste:=xlPasteValues
+
+        'Strike over and color with red deleted information
+        For j = 1 To lLastColumnOnNewList
+            Workbooks(strNewList).Sheets("List").Cells(lLastRowOnNewList + (i - 6), j).Interior.ColorIndex = xlNone 'If cells are already painted, paint them as white
+            Workbooks(strNewList).Sheets("List").Cells(lLastRowOnNewList + (i - 6), j).Font.ColorIndex = 3
+            Workbooks(strNewList).Sheets("List").Cells(lLastRowOnNewList + (i - 6), j).Font.Strikethrough = True
+        Next j
+    End If
+    i = i + 1
+Loop
+
+'Close opened comparison report after we're done with comparing
+closedBook.Close SaveChanges:=False
+
+End Sub
+'------------------ENDSUB----------------------
+
+
+
+
+

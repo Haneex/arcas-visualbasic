@@ -1,0 +1,60 @@
+'---------Creator: Samu Lahti---------
+'---------Userform: Generate---------------
+'------------Generate------------
+'------------Date: 03/2020------------
+'----------------Rev.0-----------------
+
+
+'==========================================================================================================================
+Private Sub GenerateBTN_Click()
+'==========================================================================================================================
+'Function: Start Generating
+
+If GenerateDiciplineCombo.Value = "Instrumentation" Then
+
+Call GenerateSUB("Instrumentation.xlsm")
+
+ElseIf GenerateDiciplineCombo.Value = "Electrification" Then
+
+Call GenerateSUB("Electrification.xlsm")
+
+End If
+
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'==========================================================================================================================
+Private Sub GenerateOptionsButton_Click()
+'==========================================================================================================================
+'Function:  Show generate options userform
+
+GenerateOptions.Show
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+Private Sub TODWGBTN_Click()
+
+If GenerateDiciplineCombo.Value = "Instrumentation" Then
+
+Call TODWG("Instrumentation.xlsm")
+
+ElseIf GenerateDiciplineCombo.Value = "Electrification" Then
+
+Call TODWG("Electrification.xlsm")
+
+End Sub
+
+'==========================================================================================================================
+Private Sub UserForm_Initialize()
+'==========================================================================================================================
+
+
+If GenerateDiciplineCombo.ListCount = 0 Then
+GenerateDiciplineCombo.AddItem "Electrification"
+GenerateDiciplineCombo.AddItem "Instrumentation"
+End If
+
+End Sub
+'-----------------ENDSUB---------------------------

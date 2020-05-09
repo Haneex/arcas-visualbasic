@@ -1,0 +1,391 @@
+'------------Creator: Samu Lahti--------------
+'----------Electrification Database----------
+'-------Electrification database codes--------
+'--------------Date: 03/2020-------
+'------------------Rev.0-------------
+
+Option Explicit   '<---- forces you to declare all your variables
+
+
+'==========================================================================================================================
+Public Sub CABLESUPDATE()
+'==========================================================================================================================
+'Function:  To update CABLES sheet on instrumentation database
+'Version History:
+
+Dim strDataBaseExcel As String, strDataBaseExcelSheetDATA As String, strDataBaseExcelSheetCABLES As String
+Dim lColumnPowerCable1 As Long, lColumnPowerCable2 As Long, lColumnPowerCable3 As Long, lColumnSSCable1 As Long, lControlCable1 As Long, lControlCable2 As Long, lRow1 As Long, lRow2 As Long, lRow3 As Long, lRow4 As Long, lRow5 As Long, lRow6 As Long
+Dim lRowDeviceCable1, lRowDeviceCable2, lColumnCable1 As Long, lColumnCable2 As Long, lLastDeviceCableRow As Long, lLastPowerCableRow As Long
+Dim lLastRowOnCableList As Long, lCableTypeColumn As Long, LastRowOnSheet As Long, LastColumnOnSheet As Long
+Dim i As Long, j As Long, lDeviceCableCount As Long
+Dim strCellValue1 As String, strCellValue2 As String, strCellValue3 As String, strCellValue4 As String, strCellValue5 As String, strCellValue6 As String
+Dim lLastRowAfterPowerCables As Long, lRowBeforePowerCables As Long
+Dim lColumnSSCableInfo As Long, lColumnControlCable1Info As Long, lColumnControlCable2Info As Long
+Dim lColumnPowerCable1Info As Long, lColumnPowerCable2Info As Long, lColumnPowerCable3Info As Long
+
+'Declare variables
+strDataBaseExcel = "Electrification.xlsm"
+strDataBaseExcelSheetDATA = "DATA"
+strDataBaseExcelSheetCABLES = "CABLES"
+lLastDeviceCableRow = 0
+lLastPowerCableRow = 0
+
+Application.ScreenUpdating = False
+
+'Check last column and row on sheet to remove values
+LastRowOnSheet = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetCABLES, 1)
+LastColumnOnSheet = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetCABLES, 1)
+
+'EMPTY CABLES sheet to place updated values
+For i = 2 To LastRowOnSheet
+    For j = 1 To LastColumnOnSheet
+        Workbooks(strDataBaseExcel).Sheets(strDataBaseExcelSheetCABLES).Cells(i, j).Value = vbNullString
+    Next j
+Next i
+
+'Check what's the last row on database and cable list and save values to variables
+lColumnPowerCable1 = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 1 NBR") 'Find column where power cable 1 cable number is located
+lColumnPowerCable2 = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 2 NBR") 'Find column where power cable 1 cable number is located
+lColumnPowerCable3 = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 3 NBR") 'Find column where power cable 1 cable number is located
+lColumnSSCable1 = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "SAFETY SWITCH CABLE NBR") 'Find column where power cable 1 cable number is located
+lControlCable1 = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 1 NBR") 'Find column where power cable 1 cable number is located
+lControlCable2 = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 2 NBR") 'Find column where power cable 1 cable number is located
+lRow1 = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetDATA, lColumnPowerCable1) + 1
+lRow2 = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetDATA, lColumnPowerCable2) + 1
+lRow3 = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetDATA, lColumnPowerCable3) + 1
+lRow4 = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetDATA, lColumnPowerCable3) + 1
+lRow5 = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetDATA, lColumnPowerCable3) + 1
+lRow6 = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetDATA, lColumnPowerCable3) + 1
+lLastRowOnCableList = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetCABLES, 1) + 1
+
+'Save last row before POWER CABLE 1s for info print
+lRowBeforePowerCables = lLastRowOnCableList
+j = 4
+
+'Print all the cables to sheet
+For i = 4 To (4 + lRow1 + lRow2 + lRow3)
+    strCellValue1 = GetValue(strDataBaseExcel, strDataBaseExcelSheetDATA, j, lColumnPowerCable1)
+    strCellValue2 = GetValue(strDataBaseExcel, strDataBaseExcelSheetDATA, j, lColumnPowerCable2)
+    strCellValue3 = GetValue(strDataBaseExcel, strDataBaseExcelSheetDATA, j, lColumnPowerCable3)
+    strCellValue4 = GetValue(strDataBaseExcel, strDataBaseExcelSheetDATA, j, lColumnSSCable1)
+    strCellValue5 = GetValue(strDataBaseExcel, strDataBaseExcelSheetDATA, j, lControlCable1)
+    strCellValue6 = GetValue(strDataBaseExcel, strDataBaseExcelSheetDATA, j, lControlCable2)
+    Workbooks(strDataBaseExcel).Worksheets(2).Activate
+    If IsError(Application.Match(strCellValue1, Range("A:A"), 0)) Then 'Check if cable is already on the list
+        If strCellValue1 <> "" Then 'Check If value is not empty
+            Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetCABLES).Cells(lLastPowerCableRow + 2, 1).Value = strCellValue1
+            lLastPowerCableRow = lLastPowerCableRow + 1 'Add value to variable to move on next row
+            lLastRowOnCableList = lLastRowOnCableList + 1
+        End If
+    End If
+    If IsError(Application.Match(strCellValue2, Range("A:A"), 0)) Then 'Check if cable is already on the list
+        If strCellValue2 <> "" Then 'Check If value is not empty
+            Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetCABLES).Cells(lLastPowerCableRow + 2, 1).Value = strCellValue2
+            lLastPowerCableRow = lLastPowerCableRow + 1 'Add value to variable to move on next row
+            lLastRowOnCableList = lLastRowOnCableList + 1
+        End If
+    End If
+    If IsError(Application.Match(strCellValue3, Range("A:A"), 0)) Then 'Check if cable is already on the list
+        If strCellValue3 <> "" Then 'Check If value is not empty
+            Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetCABLES).Cells(lLastPowerCableRow + 2, 1).Value = strCellValue3
+            lLastPowerCableRow = lLastPowerCableRow + 1 'Add value to variable to move on next row
+            lLastRowOnCableList = lLastRowOnCableList + 1
+        End If
+    End If
+    If IsError(Application.Match(strCellValue4, Range("A:A"), 0)) Then 'Check if cable is already on the list
+        If strCellValue4 <> "" Then 'Check If value is not empty
+            Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetCABLES).Cells(lLastPowerCableRow + 2, 1).Value = strCellValue4
+            lLastPowerCableRow = lLastPowerCableRow + 1 'Add value to variable to move on next row
+            lLastRowOnCableList = lLastRowOnCableList + 1
+        End If
+    End If
+    If IsError(Application.Match(strCellValue5, Range("A:A"), 0)) Then 'Check if cable is already on the list
+        If strCellValue5 <> "" Then 'Check If value is not empty
+            Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetCABLES).Cells(lLastPowerCableRow + 2, 1).Value = strCellValue5
+            lLastPowerCableRow = lLastPowerCableRow + 1 'Add value to variable to move on next row
+            lLastRowOnCableList = lLastRowOnCableList + 1
+        End If
+    End If
+    If IsError(Application.Match(strCellValue6, Range("A:A"), 0)) Then 'Check if cable is already on the list
+        If strCellValue6 <> "" Then 'Check If value is not empty
+            Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetCABLES).Cells(lLastPowerCableRow + 2, 1).Value = strCellValue6
+            lLastPowerCableRow = lLastPowerCableRow + 1 'Add value to variable to move on next row
+            lLastRowOnCableList = lLastRowOnCableList + 1
+        End If
+    End If
+    j = j + 1
+Next i
+
+'Save last value from power cables to see where device cables needs to start print
+lLastRowAfterPowerCables = lLastRowOnCableList
+ 
+'Print POWER CABLE 1 CABLE TYPE to CABLES sheet
+lColumnPowerCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 1 TYPE")
+Call CableInfoPrint("CABLE TYPE", lColumnPowerCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 1 NBR", lColumnPowerCable1)
+
+'Print POWER CABLE 1 FROM info to CABLES sheet
+lColumnPowerCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 1 FROM")
+Call CableInfoPrint("CABLE FROM", lColumnPowerCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 1 NBR", lColumnPowerCable1)
+
+'Print POWER CABLE 1 FROM DESCRIPTION info to CABLES sheet
+lColumnPowerCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 1 FROM DESCRIPTION")
+Call CableInfoPrint("FROM DESCRIPTION", lColumnPowerCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 1 NBR", lColumnPowerCable1)
+
+'Print POWER CABLE 1 TO info to CABLES sheet
+lColumnPowerCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 1 TO")
+Call CableInfoPrint("CABLE TO", lColumnPowerCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 1 NBR", lColumnPowerCable1)
+
+'Print POWER CABLE 1 TO DESCRIPTION info to CABLES sheet
+lColumnPowerCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 1 TO DESCRIPTION")
+Call CableInfoPrint("TO DESCRIPTION", lColumnPowerCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 1 NBR", lColumnPowerCable1)
+
+'Print POWER CABLE 1 SUPPLIER info to CABLES sheet
+lColumnPowerCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 1 SUPPLIER")
+Call CableInfoPrint("CABLE SUPPLIER", lColumnPowerCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 1 NBR", lColumnPowerCable1)
+
+'Print POWER CABLE 1 INSTALLER info to CABLES sheet
+lColumnPowerCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 1 INSTALLER")
+Call CableInfoPrint("CABLE INSTALLER", lColumnPowerCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 1 NBR", lColumnPowerCable1)
+
+'Print POWER CABLE 1 LENGHT info to CABLES sheet
+lColumnPowerCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 1 LENGHT (m)")
+Call CableInfoPrint("LENGHT (ESTIMATED)", lColumnPowerCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 1 NBR", lColumnPowerCable1)
+
+'Print POWER CABLE 1 NOTE info to CABLES sheet
+lColumnPowerCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 1 NOTE")
+Call CableInfoPrint("CABLE NOTE", lColumnPowerCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 1 NBR", lColumnPowerCable1)
+
+'Print POWER CABLE 1 CLASS info to CABLES sheet
+lColumnPowerCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 1 CLASS")
+Call CableInfoPrint("CABLE CLASS", lColumnPowerCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 1 NBR", lColumnPowerCable1)
+
+'=====================================
+'=====================================
+
+'Print POWER CABLE 2 CABLE TYPE to CABLES sheet
+lColumnPowerCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 2 TYPE")
+Call CableInfoPrint("CABLE TYPE", lColumnPowerCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 2 NBR", lColumnPowerCable2)
+
+'Print POWER CABLE 2 FROM info to CABLES sheet
+lColumnPowerCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 2 FROM")
+Call CableInfoPrint("CABLE FROM", lColumnPowerCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 2 NBR", lColumnPowerCable2)
+
+'Print POWER CABLE 2 FROM DESCRIPTION info to CABLES sheet
+lColumnPowerCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 2 FROM DESCRIPTION")
+Call CableInfoPrint("FROM DESCRIPTION", lColumnPowerCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 2 NBR", lColumnPowerCable2)
+
+'Print POWER CABLE 2 TO info to CABLES sheet
+lColumnPowerCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 2 TO")
+Call CableInfoPrint("CABLE TO", lColumnPowerCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 2 NBR", lColumnPowerCable2)
+
+'Print POWER CABLE 2 TO DESCRIPTION info to CABLES sheet
+lColumnPowerCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 2 TO DESCRIPTION")
+Call CableInfoPrint("TO DESCRIPTION", lColumnPowerCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 2 NBR", lColumnPowerCable2)
+
+'Print POWER CABLE 2 SUPPLIER info to CABLES sheet
+lColumnPowerCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 2 SUPPLIER")
+Call CableInfoPrint("CABLE SUPPLIER", lColumnPowerCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 2 NBR", lColumnPowerCable2)
+
+'Print POWER CABLE 2 INSTALLER info to CABLES sheet
+lColumnPowerCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 2 INSTALLER")
+Call CableInfoPrint("CABLE INSTALLER", lColumnPowerCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 2 NBR", lColumnPowerCable2)
+
+'Print POWER CABLE 2 LENGHT info to CABLES sheet
+lColumnPowerCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 2 LENGHT (m)")
+Call CableInfoPrint("LENGHT (ESTIMATED)", lColumnPowerCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 2 NBR", lColumnPowerCable2)
+
+'Print POWER CABLE 2 NOTE info to CABLES sheet
+lColumnPowerCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 2 NOTE")
+Call CableInfoPrint("CABLE NOTE", lColumnPowerCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 2 NBR", lColumnPowerCable2)
+
+'Print POWER CABLE 2 CLASS info to CABLES sheet
+lColumnPowerCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 2 CLASS")
+Call CableInfoPrint("CABLE CLASS", lColumnPowerCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 2 NBR", lColumnPowerCable2)
+
+'=====================================
+'=====================================
+
+'Print POWER CABLE 3 CABLE TYPE to CABLES sheet
+lColumnPowerCable3Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 3 TYPE")
+Call CableInfoPrint("CABLE TYPE", lColumnPowerCable3Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 3 NBR", lColumnPowerCable3)
+
+'Print POWER CABLE 3 FROM info to CABLES sheet
+lColumnPowerCable3Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 3 FROM")
+Call CableInfoPrint("CABLE FROM", lColumnPowerCable3Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 3 NBR", lColumnPowerCable3)
+
+'Print POWER CABLE 3 FROM DESCRIPTION info to CABLES sheet
+lColumnPowerCable3Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 3 FROM DESCRIPTION")
+Call CableInfoPrint("FROM DESCRIPTION", lColumnPowerCable3Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 3 NBR", lColumnPowerCable3)
+
+'Print POWER CABLE 3 TO info to CABLES sheet
+lColumnPowerCable3Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 3 TO")
+Call CableInfoPrint("CABLE TO", lColumnPowerCable3Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 3 NBR", lColumnPowerCable3)
+
+'Print POWER CABLE 3 TO DESCRIPTION info to CABLES sheet
+lColumnPowerCable3Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 3 TO DESCRIPTION")
+Call CableInfoPrint("TO DESCRIPTION", lColumnPowerCable3Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 3 NBR", lColumnPowerCable3)
+
+'Print POWER CABLE 3 SUPPLIER info to CABLES sheet
+lColumnPowerCable3Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 3 SUPPLIER")
+Call CableInfoPrint("CABLE SUPPLIER", lColumnPowerCable3Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 3 NBR", lColumnPowerCable3)
+
+'Print POWER CABLE 3 INSTALLER info to CABLES sheet
+lColumnPowerCable3Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 3 INSTALLER")
+Call CableInfoPrint("CABLE INSTALLER", lColumnPowerCable3Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 3 NBR", lColumnPowerCable3)
+
+'Print POWER CABLE 3 LENGHT info to CABLES sheet
+lColumnPowerCable3Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 3 LENGHT (m)")
+Call CableInfoPrint("LENGHT (ESTIMATED)", lColumnPowerCable3Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 3 NBR", lColumnPowerCable3)
+
+'Print POWER CABLE 3 NOTE info to CABLES sheet
+lColumnPowerCable3Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 3 NOTE")
+Call CableInfoPrint("CABLE NOTE", lColumnPowerCable3Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 3 NBR", lColumnPowerCable3)
+
+'Print POWER CABLE 3 CLASS info to CABLES sheet
+lColumnPowerCable3Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "POWER CABLE 3 CLASS")
+Call CableInfoPrint("CABLE CLASS", lColumnPowerCable3Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "POWER CABLE 3 NBR", lColumnPowerCable1)
+
+'=====================================
+'=====================================
+
+'Print SAFETY SWITCH CABLE CABLE TYPE to CABLES sheet
+lColumnSSCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "SAFETY SWITCH CABLE TYPE")
+Call CableInfoPrint("CABLE TYPE", lColumnSSCableInfo, lLastRowOnCableList, lRowBeforePowerCables - 1, "SAFETY SWITCH CABLE NBR", lColumnSSCable1)
+
+'Print SAFETY SWITCH CABLE FROM info to CABLES sheet
+lColumnSSCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "SAFETY SWITCH CABLE FROM")
+Call CableInfoPrint("CABLE FROM", lColumnSSCableInfo, lLastRowOnCableList, lRowBeforePowerCables - 1, "SAFETY SWITCH CABLE NBR", lColumnSSCable1)
+
+'Print SAFETY SWITCH CABLE FROM DESCRIPTION info to CABLES sheet
+lColumnSSCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "SAFETY SWITCH CABLE FROM DESCRIPTION")
+Call CableInfoPrint("FROM DESCRIPTION", lColumnSSCableInfo, lLastRowOnCableList, lRowBeforePowerCables - 1, "SAFETY SWITCH CABLE NBR", lColumnSSCable1)
+
+'Print SAFETY SWITCH CABLE TO info to CABLES sheet
+lColumnSSCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "SAFETY SWITCH CABLE TO")
+Call CableInfoPrint("CABLE TO", lColumnSSCableInfo, lLastRowOnCableList, lRowBeforePowerCables - 1, "SAFETY SWITCH CABLE NBR", lColumnSSCable1)
+
+'Print SAFETY SWITCH CABLE TO DESCRIPTION info to CABLES sheet
+lColumnSSCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "SAFETY SWITCH CABLE TO DESCRIPTION")
+Call CableInfoPrint("TO DESCRIPTION", lColumnSSCableInfo, lLastRowOnCableList, lRowBeforePowerCables - 1, "SAFETY SWITCH CABLE NBR", lColumnSSCable1)
+
+'Print SAFETY SWITCH CABLE SUPPLIER info to CABLES sheet
+lColumnSSCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "SAFETY SWITCH CABLE SUPPLIER")
+Call CableInfoPrint("CABLE SUPPLIER", lColumnSSCableInfo, lLastRowOnCableList, lRowBeforePowerCables - 1, "SAFETY SWITCH CABLE NBR", lColumnSSCable1)
+
+'Print SAFETY SWITCH CABLE INSTALLER info to CABLES sheet
+lColumnSSCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "SAFETY SWITCH CABLE INSTALLER")
+Call CableInfoPrint("CABLE INSTALLER", lColumnSSCableInfo, lLastRowOnCableList, lRowBeforePowerCables - 1, "SAFETY SWITCH CABLE NBR", lColumnSSCable1)
+
+'Print SAFETY SWITCH CABLE LENGHT info to CABLES sheet
+lColumnSSCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "SAFETY SWITCH CABLE LENGHT (m)")
+Call CableInfoPrint("LENGHT (ESTIMATED)", lColumnSSCableInfo, lLastRowOnCableList, lRowBeforePowerCables - 1, "SAFETY SWITCH CABLE NBR", lColumnSSCable1)
+
+'Print SAFETY SWITCH CABLE NOTE info to CABLES sheet
+lColumnSSCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "SAFETY SWITCH CABLE NOTE")
+Call CableInfoPrint("CABLE NOTE", lColumnSSCableInfo, lLastRowOnCableList, lRowBeforePowerCables - 1, "SAFETY SWITCH CABLE NBR", lColumnSSCable1)
+
+'Print SAFETY SWITCH CABLE CLASS info to CABLES sheet
+lColumnSSCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "SAFETY SWITCH CABLE CLASS")
+Call CableInfoPrint("CABLE CLASS", lColumnSSCableInfo, lLastRowOnCableList, lRowBeforePowerCables - 1, "SAFETY SWITCH CABLE NBR", lColumnSSCable1)
+
+'=====================================
+'=====================================
+
+'Print CONTROL CABLE 1 CABLE TYPE to CABLES sheet
+lColumnControlCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 1 TYPE")
+Call CableInfoPrint("CABLE TYPE", lColumnControlCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 1 NBR", lControlCable1)
+
+'Print CONTROL CABLE 1 CABLE FROM info to CABLES sheet
+lColumnControlCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 1 FROM")
+Call CableInfoPrint("CABLE FROM", lColumnControlCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 1 NBR", lControlCable1)
+
+'Print CONTROL CABLE 1 CABLE FROM DESCRIPTION info to CABLES sheet
+lColumnControlCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 1 FROM DESCRIPTION")
+Call CableInfoPrint("FROM DESCRIPTION", lColumnControlCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 1 NBR", lControlCable1)
+
+'Print CONTROL CABLE 1 CABLE TO info to CABLES sheet
+lColumnControlCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 1 TO")
+Call CableInfoPrint("CABLE TO", lColumnControlCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 1 NBR", lControlCable1)
+
+'Print CONTROL CABLE 1 CABLE TO DESCRIPTION info to CABLES sheet
+lColumnControlCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 1 TO DESCRIPTION")
+Call CableInfoPrint("TO DESCRIPTION", lColumnControlCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 1 NBR", lControlCable1)
+
+'Print CONTROL CABLE 1 CABLE SUPPLIER info to CABLES sheet
+lColumnControlCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 1 SUPPLIER")
+Call CableInfoPrint("CABLE SUPPLIER", lColumnControlCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 1 NBR", lControlCable1)
+
+'Print CONTROL CABLE 1 CABLE INSTALLER info to CABLES sheet
+lColumnControlCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 1 INSTALLER")
+Call CableInfoPrint("CABLE INSTALLER", lColumnControlCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 1 NBR", lControlCable1)
+
+'Print CONTROL CABLE 1 CABLE LENGHT info to CABLES sheet
+lColumnControlCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 1 LENGHT (m)")
+Call CableInfoPrint("LENGHT (ESTIMATED)", lColumnControlCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 1 NBR", lControlCable1)
+
+'Print CONTROL CABLE 1 CABLE NOTE info to CABLES sheet
+lColumnControlCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 1 NOTE")
+Call CableInfoPrint("CABLE NOTE", lColumnControlCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 1 NBR", lControlCable1)
+
+'Print CONTROL CABLE 1 CABLE CLASS info to CABLES sheet
+lColumnControlCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 1 CLASS")
+Call CableInfoPrint("CABLE CLASS", lColumnControlCable1Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 1 NBR", lControlCable1)
+
+'=====================================
+'=====================================
+
+'Print CONTROL CABLE 1 CABLE TYPE to CABLES sheet
+lColumnControlCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 2 TYPE")
+Call CableInfoPrint("CABLE TYPE", lColumnControlCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 2 NBR", lControlCable2)
+
+'Print CONTROL CABLE 1 CABLE FROM info to CABLES sheet
+lColumnControlCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 2 FROM")
+Call CableInfoPrint("CABLE FROM", lColumnControlCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 2 NBR", lControlCable2)
+
+'Print CONTROL CABLE 1 CABLE FROM DESCRIPTION info to CABLES sheet
+lColumnControlCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 2 FROM DESCRIPTION")
+Call CableInfoPrint("FROM DESCRIPTION", lColumnControlCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 2 NBR", lControlCable2)
+
+'Print CONTROL CABLE 1 CABLE TO info to CABLES sheet
+lColumnControlCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 2 TO")
+Call CableInfoPrint("CABLE TO", lColumnControlCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 2 NBR", lControlCable2)
+
+'Print CONTROL CABLE 1 CABLE TO DESCRIPTION info to CABLES sheet
+lColumnControlCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 2 TO DESCRIPTION")
+Call CableInfoPrint("TO DESCRIPTION", lColumnControlCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 2 NBR", lControlCable2)
+
+'Print CONTROL CABLE 1 CABLE SUPPLIER info to CABLES sheet
+lColumnControlCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 2 SUPPLIER")
+Call CableInfoPrint("CABLE SUPPLIER", lColumnControlCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 2 NBR", lControlCable2)
+
+'Print CONTROL CABLE 1 CABLE INSTALLER info to CABLES sheet
+lColumnControlCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 2 INSTALLER")
+Call CableInfoPrint("CABLE INSTALLER", lColumnControlCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 2 NBR", lControlCable2)
+
+'Print CONTROL CABLE 1 CABLE LENGHT info to CABLES sheet
+lColumnControlCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 2 LENGHT (m)")
+Call CableInfoPrint("LENGHT (ESTIMATED)", lColumnControlCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 2 NBR", lControlCable2)
+
+'Print CONTROL CABLE 1 CABLE NOTE info to CABLES sheet
+lColumnControlCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 2 NOTE")
+Call CableInfoPrint("CABLE NOTE", lColumnControlCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 2 NBR", lControlCable2)
+
+'Print CONTROL CABLE 1 CABLE CLASS info to CABLES sheet
+lColumnControlCable2Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "CONTROL CABLE 2 CLASS")
+Call CableInfoPrint("CABLE CLASS", lColumnControlCable2Info, lLastRowOnCableList, lRowBeforePowerCables - 1, "CONTROL CABLE 2 NBR", lControlCable2)
+
+
+
+Application.ScreenUpdating = True
+ 
+End Sub
+'------------------ENDSUB----------------------
+
+
+
+
+
+
+
+
+

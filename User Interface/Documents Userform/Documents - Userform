@@ -1,0 +1,671 @@
+'--------Creator: Samu Lahti---------
+'----------Module: Documents--------
+'---------------Documents--------------
+'-------------Date: 01/2020-------
+'-----------------Rev.0---------------
+
+'Option Explicit   '<---- forces you to declare all your variables
+
+Dim Workbook As String, Worksheet As String
+Dim SelectedDocument As String
+Dim LastTypeRow As Long
+Dim SelectedType As String
+Dim LastDocumentRow As Long, DocumentColumn As Long, DocumentTitle1Column As Long, DocumentTitle2Column As Long, DocumentCustomerIDColumn As Long, _
+DocumentARCOIDColumn As Long, DocumentNoteColumn As Long, DocumentDesignedColumn As Long, DocumentCheckedColumn As Long, DocumentIssuedColumn As Long, _
+DocumentRevColumn As Long, DocumentStatusColumn As Long, DocumentTypeColumn As Long, DocumentSubFolderColumn As Long, DocumentRev1Column As Long, _
+DocumentRev1DesignColumn As Long, DocumentRev1ApprovedColumn As Long, DocumentRev1IssuedColumn As Long, DocumentRev2Column As Long, _
+DocumentRev2DesignColumn As Long, DocumentRev2ApprovedColumn As Long, DocumentRev2IssuedColumn As Long, DocumentRev3Column As Long, _
+DocumentRev3DesignColumn As Long, DocumentRev3ApprovedColumn As Long, DocumentRev3IssuedColumn As Long, DocumentRev4Column As Long, _
+DocumentRev4DesignColumn As Long, DocumentRev4ApprovedColumn As Long, DocumentRev4IssuedColumn As Long, DocumentRev5Column As Long, _
+DocumentRev5DesignColumn As Long, DocumentRev5ApprovedColumn As Long, DocumentRev5IssuedColumn As Long, DocumentDiciplineColumn As Long
+
+'==========================================================================================================================
+Private Sub AddNewDocument_Click()
+'==========================================================================================================================
+'Function: Open userform where user can add new document and runs initialize to update userform document list
+'Input1: -
+'Output: -
+'Note: Please see "New Document" Userform
+'Version History:
+
+'Show NewDocument Userform
+NewDocument.Show
+
+'Run Userform initialize to update userform documents list
+Call UserForm_Initialize
+Call DocumentsListBox_Click
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub DeleteDocument_Click()
+'==========================================================================================================================
+'Function: Runs code which deletes document from document sheet
+'Input1: -
+'Output: -
+'Note: -
+'Version History:
+
+On Error GoTo catchError
+
+'Declare  variables
+Dim DocumentRow As Long
+Dim YesOrNo As Integer
+Dim DocumentName As String
+
+'Declare which document is selected in the listbox
+For i = 1 To DocumentsListBox.ListCount 'Looping through listbox values
+    If DocumentsListBox.Selected(i - 1) = True Then 'Check if item is selected on the document list in userform
+        SelectedDocument = DocumentsListBox.List(i - 1, 0) 'Store selected document number to variable
+        DocumentRow = i + 4
+    End If
+Next i
+
+'Specify which column has each values in Documents sheet by searching key word
+DocumentColumn = GetLastColumn(Workbook, Worksheet, 4, "Document number")
+DocumentTitle1Column = GetLastColumn(Workbook, Worksheet, 4, "Title 1")
+DocumentTitle2Column = GetLastColumn(Workbook, Worksheet, 4, "Title 2")
+DocumentCustomerIDColumn = GetLastColumn(Workbook, Worksheet, 4, "Document Customer Number")
+DocumentARCOIDColumn = GetLastColumn(Workbook, Worksheet, 4, "Document List Template")
+DocumentNoteColumn = GetLastColumn(Workbook, Worksheet, 4, "Note!")
+DocumentDesignedColumn = GetLastColumn(Workbook, Worksheet, 4, "Designed")
+DocumentCheckedColumn = GetLastColumn(Workbook, Worksheet, 4, "Approved")
+DocumentIssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Issued")
+DocumentRevColumn = GetLastColumn(Workbook, Worksheet, 4, "Document Revision")
+DocumentStatusColumn = GetLastColumn(Workbook, Worksheet, 4, "Status")
+DocumentTypeColumn = GetLastColumn(Workbook, Worksheet, 4, "Type")
+DocumentSubFolderColumn = GetLastColumn(Workbook, Worksheet, 4, "SubFolder")
+DocumentRev1Column = GetLastColumn(Workbook, Worksheet, 4, "Rev1")
+DocumentRev1DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev1Design")
+DocumentRev1ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev1Approved")
+DocumentRev1IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev1Issued")
+DocumentRev2Column = GetLastColumn(Workbook, Worksheet, 4, "Rev2")
+DocumentRev2DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev2Design")
+DocumentRev2ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev2Approved")
+DocumentRev2IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev2Issued")
+DocumentRev3Column = GetLastColumn(Workbook, Worksheet, 4, "Rev3")
+DocumentRev3DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev3Design")
+DocumentRev3ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev3Approved")
+DocumentRev3IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev3Issued")
+DocumentRev4Column = GetLastColumn(Workbook, Worksheet, 4, "Rev4")
+DocumentRev4DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev4Design")
+DocumentRev4ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev4Approved")
+DocumentRev4IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev4Issued")
+DocumentRev5Column = GetLastColumn(Workbook, Worksheet, 4, "Rev5")
+DocumentRev5DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev5Design")
+DocumentRev5ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev5Approved")
+DocumentRev5IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev5Issued")
+DocumentDiciplineColumn = GetLastColumn(Workbook, Worksheet, 4, "Dicipline")
+
+'Specify document name
+DocumentName = GetValue(Workbook, Worksheet, DocumentRow, DocumentColumn)
+
+'Ask user if sure about deleting  selected document and save answer to variable
+YesOrNo = MsgBox("Do you want to delete document " & DocumentName & "?", vbQuestion + vbYesNo + vbDefaultButton2, "Save")
+
+'Delete row from documents sheet
+If YesOrNo = vbYes Then 'Ask if user is sure
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentCustomerIDColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentTitle1Column, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentTitle2Column, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentARCOIDColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentNoteColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentDesignedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentCheckedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentIssuedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRevColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentStatusColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentTypeColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentSubFolderColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev1Column, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev1DesignColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev1ApprovedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev1IssuedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev2Column, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev2DesignColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev2ApprovedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev2IssuedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev3Column, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev3DesignColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev3ApprovedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev3IssuedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev4Column, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev4DesignColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev4ApprovedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev4IssuedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev5Column, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev5DesignColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev5ApprovedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev5IssuedColumn, "")
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentDiciplineColumn, "")
+        Call UserForm_Initialize
+        Call DocumentsListBox_Click
+End If
+
+'Run Userform initialize to update userform documents list
+Call UserForm_Initialize
+
+exitSub:
+    Exit Sub
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while deleting document, please try again", vbOKOnly, "ERROR"
+    GoTo exitSub
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub DocumentsExit_Click()
+'==========================================================================================================================
+'Function: Exit userform (close userform)
+'Input1: -
+'Output: -
+'Note: -
+'Version History:
+
+Unload Me
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub DocumentsSave_Click()
+'==========================================================================================================================
+'Function: Runs code which saves document to documents sheet
+'Input1: -
+'Output: -
+'Note: -
+'Version History:
+
+On Error GoTo catchError
+'Declare  varaibles
+Dim YesOrNo As Integer
+Dim DocumentRow As Long
+Dim i As Long
+
+'Declare workbook and worksheets to variables
+Workbook = "Arco_ENGINEERING.xlsm"
+Worksheet = "Documents"
+
+'Declare which document is selected in the listbox
+For i = 1 To DocumentsListBox.ListCount 'Looping through listbox values
+    If DocumentsListBox.Selected(i - 1) = True Then 'Check if this loop round is selected item
+        SelectedDocument = DocumentsListBox.List(i - 1, 0) 'Store selected document number to variable
+        DocumentRow = i + 4
+    End If
+Next i
+
+'Specify which column has each values in Dcouments sheet
+DocumentColumn = GetLastColumn(Workbook, Worksheet, 4, "Document number")
+DocumentTitle1Column = GetLastColumn(Workbook, Worksheet, 4, "Title 1")
+DocumentTitle2Column = GetLastColumn(Workbook, Worksheet, 4, "Title 2")
+DocumentCustomerIDColumn = GetLastColumn(Workbook, Worksheet, 4, "Document Customer Number")
+DocumentARCOIDColumn = GetLastColumn(Workbook, Worksheet, 4, "Document List Template")
+DocumentNoteColumn = GetLastColumn(Workbook, Worksheet, 4, "Note!")
+DocumentDesignedColumn = GetLastColumn(Workbook, Worksheet, 4, "Designed")
+DocumentCheckedColumn = GetLastColumn(Workbook, Worksheet, 4, "Approved")
+DocumentIssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Issued")
+DocumentRevColumn = GetLastColumn(Workbook, Worksheet, 4, "Document Revision")
+DocumentStatusColumn = GetLastColumn(Workbook, Worksheet, 4, "Status")
+DocumentTypeColumn = GetLastColumn(Workbook, Worksheet, 4, "Type")
+DocumentSubFolderColumn = GetLastColumn(Workbook, Worksheet, 4, "SubFolder")
+DocumentRev1Column = GetLastColumn(Workbook, Worksheet, 4, "Rev1")
+DocumentRev1DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev1Design")
+DocumentRev1ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev1Approved")
+DocumentRev1IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev1Issued")
+DocumentRev2Column = GetLastColumn(Workbook, Worksheet, 4, "Rev2")
+DocumentRev2DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev2Design")
+DocumentRev2ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev2Approved")
+DocumentRev2IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev2Issued")
+DocumentRev3Column = GetLastColumn(Workbook, Worksheet, 4, "Rev3")
+DocumentRev3DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev3Design")
+DocumentRev3ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev3Approved")
+DocumentRev3IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev3Issued")
+DocumentRev4Column = GetLastColumn(Workbook, Worksheet, 4, "Rev4")
+DocumentRev4DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev4Design")
+DocumentRev4ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev4Approved")
+DocumentRev4IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev4Issued")
+DocumentRev5Column = GetLastColumn(Workbook, Worksheet, 4, "Rev5")
+DocumentRev5DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev5Design")
+DocumentRev5ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev5Approved")
+DocumentRev5IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev5Issued")
+DocumentDiciplineColumn = GetLastColumn(Workbook, Worksheet, 4, "Dicipline")
+
+'Ask if user is sure
+YesOrNo = MsgBox("Do you want to save values?", vbQuestion + vbYesNo + vbDefaultButton2, "Save")
+
+'Load values to cells
+If YesOrNo = vbYes Then 'Ask if user is sure
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentColumn, DocumentNumberBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentCustomerIDColumn, CustomerDocIDBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentTitle1Column, Title1Box.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentTitle2Column, Title1Box2.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentARCOIDColumn, DocumentARCOIDBOX.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentNoteColumn, NoteBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentDesignedColumn, DesignedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentCheckedColumn, CheckedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentIssuedColumn, IssuedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRevColumn, RevBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentStatusColumn, StatusBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentTypeColumn, TypeNumberBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentSubFolderColumn, SubFolderBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev1Column, Rev1Box.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev1DesignColumn, Rev1DesignBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev1ApprovedColumn, Rev1ApprovedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev1IssuedColumn, Rev1IssuedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev2Column, Rev2Box.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev2DesignColumn, Rev2DesignBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev2ApprovedColumn, Rev2ApprovedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev2IssuedColumn, Rev2IssuedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev3Column, Rev3Box.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev3DesignColumn, Rev3DesignBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev3ApprovedColumn, Rev3ApprovedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev3IssuedColumn, Rev3IssuedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev4Column, Rev4Box.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev4DesignColumn, Rev4DesignBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev4ApprovedColumn, Rev4ApprovedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev4IssuedColumn, Rev4IssuedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev5Column, Rev5Box.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev5DesignColumn, Rev5DesignBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev5ApprovedColumn, Rev5ApprovedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentRev5IssuedColumn, Rev5IssuedBox.Value)
+        Call SaveValue(Workbook, Worksheet, DocumentRow, DocumentDiciplineColumn, DiciplineTextBox.Value)
+        Call UserForm_Initialize
+        Call DocumentsListBox_Click
+End If
+
+exitSub:
+    Exit Sub
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured, please try again", vbOKOnly, "ERROR"
+    GoTo exitSub
+
+End Sub
+'------------------ENDSUB----------------------
+
+
+'==========================================================================================================================
+Private Sub UpdateDocuments_Click()
+'==========================================================================================================================
+'Function: Runs code which updates document list from documents sheet (By clicking "update" -button)
+'Input1: -
+'Output: -
+'Note: -
+'Version History:
+
+On Error GoTo catchError
+
+'Calls userform initialize
+Call UserForm_Initialize
+
+exitSub:
+    Exit Sub
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while trying to update documents, please try again", vbOKOnly, "ERROR"
+    GoTo exitSub
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub UserForm_Initialize()
+'==========================================================================================================================
+'Function: Runs code which initializes document userform
+'Input1: -
+'Output: -
+'Note: -
+'Version History:
+
+On Error GoTo catchError
+'Declare variables
+Dim LastDocumentRow As Long, DocumentColumn As Long, DocumentTitleColumn As Long
+Dim i As Integer
+
+'Declare workbook and worksheets to variables
+Workbook = "Arco_ENGINEERING.xlsm"
+Worksheet = "Documents"
+
+'Pick up last used document row
+LastDocumentRow = GetLastRow(Workbook, Worksheet, 2, "")
+
+'Specify which column has each values in Dcouments sheet
+DocumentColumn = GetLastColumn(Workbook, Worksheet, 4, "Document number")
+DocumentTitle1Column = GetLastColumn(Workbook, Worksheet, 4, "Title 1")
+DocumentTitle2Column = GetLastColumn(Workbook, Worksheet, 4, "Title 2")
+DocumentCustomerIDColumn = GetLastColumn(Workbook, Worksheet, 4, "Document Customer Number")
+DocumentARCOIDColumn = GetLastColumn(Workbook, Worksheet, 4, "Document List Template")
+DocumentNoteColumn = GetLastColumn(Workbook, Worksheet, 4, "Note!")
+DocumentDesignedColumn = GetLastColumn(Workbook, Worksheet, 4, "Designed")
+DocumentCheckedColumn = GetLastColumn(Workbook, Worksheet, 4, "Approved")
+DocumentIssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Issued")
+DocumentRevColumn = GetLastColumn(Workbook, Worksheet, 4, "Document Revision")
+DocumentStatusColumn = GetLastColumn(Workbook, Worksheet, 4, "Status")
+DocumentTypeColumn = GetLastColumn(Workbook, Worksheet, 4, "Type")
+DocumentSubFolderColumn = GetLastColumn(Workbook, Worksheet, 4, "SubFolder")
+DocumentRev1Column = GetLastColumn(Workbook, Worksheet, 4, "Rev1")
+DocumentRev1DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev1Design")
+DocumentRev1ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev1Approved")
+DocumentRev1IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev1Issued")
+DocumentRev2Column = GetLastColumn(Workbook, Worksheet, 4, "Rev2")
+DocumentRev2DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev2Design")
+DocumentRev2ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev2Approved")
+DocumentRev2IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev2Issued")
+DocumentRev3Column = GetLastColumn(Workbook, Worksheet, 4, "Rev3")
+DocumentRev3DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev3Design")
+DocumentRev3ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev3Approved")
+DocumentRev3IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev3Issued")
+DocumentRev4Column = GetLastColumn(Workbook, Worksheet, 4, "Rev4")
+DocumentRev4DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev4Design")
+DocumentRev4ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev4Approved")
+DocumentRev4IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev4Issued")
+DocumentRev5Column = GetLastColumn(Workbook, Worksheet, 4, "Rev5")
+DocumentRev5DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev5Design")
+DocumentRev5ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev5Approved")
+DocumentRev5IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev5Issued")
+DocumentDiciplineColumn = GetLastColumn(Workbook, Worksheet, 4, "Dicipline")
+
+'Pick all documents from "documents" sheet with range option
+Set DocumentsRange = Workbooks(Workbook).Worksheets(Worksheet).Range("B" & LastDocumentRow & "")
+
+'Specify multi column listbox
+DocumentsListBox.ColumnCount = 3
+DocumentsListBox.ColumnWidths = "100;200;50"
+DocumentsListBox.Font.Size = 10
+
+'Populate documents listbox
+For i = 5 To LastDocumentRow
+    DocumentsListBox.AddItem
+    DocumentsListBox.List(i - 5, 0) = GetValue(Workbook, Worksheet, i, DocumentColumn)
+    DocumentsListBox.List(i - 5, 1) = GetValue(Workbook, Worksheet, i, DocumentTitle1Column)
+    DocumentsListBox.List(i - 5, 2) = GetValue(Workbook, Worksheet, i, DocumentDiciplineColumn)
+Next i
+
+exitSub:
+    Exit Sub
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while trying to initialize documents, please try again", vbOKOnly, "ERROR"
+    GoTo exitSub
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub DocumentsListBox_Click()
+'==========================================================================================================================
+'Function: When user clicks item in document list box, get all values to userform textboxes
+'Input1: -
+'Output: -
+'Note: -
+'Version History:
+
+On Error GoTo catchError
+'Declare variables
+Dim SelectedRow As Long
+Dim i As Integer
+
+'Specify which column has each values in Documents sheet
+DocumentColumn = GetLastColumn(Workbook, Worksheet, 4, "Document number")
+DocumentTitle1Column = GetLastColumn(Workbook, Worksheet, 4, "Title 1")
+DocumentTitle2Column = GetLastColumn(Workbook, Worksheet, 4, "Title 2")
+DocumentCustomerIDColumn = GetLastColumn(Workbook, Worksheet, 4, "Document Customer Number")
+DocumentARCOIDColumn = GetLastColumn(Workbook, Worksheet, 4, "Document List Template")
+DocumentNoteColumn = GetLastColumn(Workbook, Worksheet, 4, "Note!")
+DocumentDesignedColumn = GetLastColumn(Workbook, Worksheet, 4, "Designed")
+DocumentCheckedColumn = GetLastColumn(Workbook, Worksheet, 4, "Approved")
+DocumentIssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Issued")
+DocumentRevColumn = GetLastColumn(Workbook, Worksheet, 4, "Document Revision")
+DocumentStatusColumn = GetLastColumn(Workbook, Worksheet, 4, "Status")
+DocumentTypeColumn = GetLastColumn(Workbook, Worksheet, 4, "Type")
+DocumentSubFolderColumn = GetLastColumn(Workbook, Worksheet, 4, "SubFolder")
+DocumentRev1Column = GetLastColumn(Workbook, Worksheet, 4, "Rev1")
+DocumentRev1DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev1Design")
+DocumentRev1ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev1Approved")
+DocumentRev1IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev1Issued")
+DocumentRev2Column = GetLastColumn(Workbook, Worksheet, 4, "Rev2")
+DocumentRev2DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev2Design")
+DocumentRev2ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev2Approved")
+DocumentRev2IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev2Issued")
+DocumentRev3Column = GetLastColumn(Workbook, Worksheet, 4, "Rev3")
+DocumentRev3DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev3Design")
+DocumentRev3ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev3Approved")
+DocumentRev3IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev3Issued")
+DocumentRev4Column = GetLastColumn(Workbook, Worksheet, 4, "Rev4")
+DocumentRev4DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev4Design")
+DocumentRev4ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev4Approved")
+DocumentRev4IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev4Issued")
+DocumentRev5Column = GetLastColumn(Workbook, Worksheet, 4, "Rev5")
+DocumentRev5DesignColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev5Design")
+DocumentRev5ApprovedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev5Approved")
+DocumentRev5IssuedColumn = GetLastColumn(Workbook, Worksheet, 4, "Rev5Issued")
+DocumentDiciplineColumn = GetLastColumn(Workbook, Worksheet, 4, "Dicipline")
+
+'Declare which document is selected in the listbox
+For i = 1 To DocumentsListBox.ListCount 'Looping through listbox values
+    If DocumentsListBox.Selected(i - 1) = True Then 'Check if item is selected in the list
+        SelectedDocument = DocumentsListBox.List(i - 1, 0) 'Store selected document number to variable
+        SelectedRow = i + 4
+    End If
+Next i
+
+'When value from list box is changed this part of code will run
+With Me
+    'Check if any value is selected
+    If DocumentsListBox.ListIndex >= 0 Then _
+        'Clear all values in textboxes
+        .DocumentNumberBox.Value = ""
+        .CustomerDocIDBox.Value = ""
+        .Title1Box.Value = ""
+        .Title1Box2.Value = ""
+        .DocumentARCOIDBOX.Value = ""
+        .NoteBox.Value = ""
+        .DesignedBox.Value = ""
+        .CheckedBox.Value = ""
+        .IssuedBox.Value = ""
+        .RevBox.Value = ""
+        .StatusBox.Value = ""
+        .TypeNumberBox.Value = ""
+        .TypeNameBox.Value = ""
+        .SubFolderBox.Value = ""
+        .Rev1Box.Value = ""
+        .Rev1DesignBox.Value = ""
+        .Rev1ApprovedBox.Value = ""
+        .Rev1IssuedBox.Value = ""
+        .Rev2Box.Value = ""
+        .Rev2DesignBox.Value = ""
+        .Rev2ApprovedBox.Value = ""
+        .Rev2IssuedBox.Value = ""
+        .Rev3Box.Value = ""
+        .Rev3DesignBox.Value = ""
+        .Rev3ApprovedBox.Value = ""
+        .Rev3IssuedBox.Value = ""
+        .Rev4Box.Value = ""
+        .Rev4DesignBox.Value = ""
+        .Rev4ApprovedBox.Value = ""
+        .Rev4IssuedBox.Value = ""
+        .Rev5Box.Value = ""
+        .Rev5DesignBox.Value = ""
+        .Rev5ApprovedBox.Value = ""
+        .Rev5IssuedBox.Value = ""
+        .DiciplineTextBox.Value = ""
+        
+
+        'Add values to textboxes
+        .DocumentNumberBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentColumn)
+        .CustomerDocIDBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentCustomerIDColumn)
+        .Title1Box.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentTitle1Column)
+        .Title1Box2.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentTitle2Column)
+        .DocumentARCOIDBOX.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentARCOIDColumn)
+        .NoteBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentNoteColumn)
+        .DesignedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentDesignedColumn)
+        .CheckedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentCheckedColumn)
+        .IssuedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentIssuedColumn)
+        .RevBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRevColumn)
+        .StatusBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentStatusColumn)
+        .SubFolderBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentSubFolderColumn)
+        .TypeNumberBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentTypeColumn)
+        SelectedType = GetValue(Workbook, Worksheet, SelectedRow, DocumentTypeColumn)
+        .Rev1Box.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev1Column)
+        .Rev1DesignBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev1DesignColumn)
+        .Rev1ApprovedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev1ApprovedColumn)
+        .Rev1IssuedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev1IssuedColumn)
+        .Rev2Box.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev2Column)
+        .Rev2DesignBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev2DesignColumn)
+        .Rev2ApprovedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev2ApprovedColumn)
+        .Rev2IssuedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev2IssuedColumn)
+        .Rev3Box.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev3Column)
+        .Rev3DesignBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev3DesignColumn)
+        .Rev3ApprovedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev3ApprovedColumn)
+        .Rev3IssuedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev3IssuedColumn)
+        .Rev4Box.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev4Column)
+        .Rev4DesignBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev4DesignColumn)
+        .Rev4ApprovedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev4ApprovedColumn)
+        .Rev4IssuedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev5IssuedColumn)
+        .Rev5Box.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev5Column)
+        .Rev5DesignBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev5DesignColumn)
+        .Rev5ApprovedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev5ApprovedColumn)
+        .Rev5IssuedBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentRev5IssuedColumn)
+        .DiciplineTextBox.Value = GetValue(Workbook, Worksheet, SelectedRow, DocumentDiciplineColumn)
+        
+        
+        If Not IsError(Application.Match(Workbooks(Workbook).Worksheets(Worksheet).Cells(SelectedRow, DocumentTypeColumn).Value, Workbooks(Workbook).Worksheets("ProjectInfo").Range("L:L"), 0)) Then
+        LastTypeRow = Workbooks(Workbook).Worksheets("ProjectInfo").Range("L:L").Find(What:=SelectedType, LookIn:=xlValues).Row
+        .TypeNameBox.Value = Workbooks(Workbook).Worksheets("ProjectInfo").Cells(LastTypeRow, 13).Value
+        Else: .TypeNameBox.Value = "Type not found"
+        End If
+    End If
+End With
+
+exitSub:
+    Exit Sub
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while selecting document, please try again", vbOKOnly, "ERROR"
+    GoTo exitSub
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub Textbox5_Change()
+'==========================================================================================================================
+'Function: When typing to search textbox start seacrhing item by document number
+'Input1: -
+'Output: -
+'Note: -
+'Version History:
+
+On Error GoTo catchError
+'Declare variables
+Dim i As Long
+Dim arrList As Variant, arrList2 As Variant, arrList3 As Variant
+Dim x As Long, c As Long
+
+'Place 0 to x variable
+x = 0
+c = 0
+
+'Declare workbook and worksheets to variables
+Workbook = "ARCO_ENGINEERING.xlsm"
+Worksheet = "Documents"
+
+'Pick up last used document row
+LastDocumentRow = GetLastRow(Workbook, Worksheet, 2)
+
+'Search
+Me.DocumentsListBox.Clear
+If Len(TextBox5) <> vbNullString Then
+    If Worksheets(Worksheet).Range("B" & Worksheets(Worksheet).Rows.Count).End(xlUp).Row > 1 And Trim(Me.TextBox5.Value) <> vbNullString Then
+        arrList = Worksheets(Worksheet).Range("B5:B" & Worksheets(Worksheet).Range("B" & Worksheets(Worksheet).Rows.Count).End(xlUp).Row).Value2
+        arrList2 = Worksheets(Worksheet).Range("L5:L" & Worksheets(Worksheet).Range("L" & Worksheets(Worksheet).Rows.Count).End(xlUp).Row).Value2
+        arrList3 = Worksheets(Worksheet).Range("K5:L" & Worksheets(Worksheet).Range("K" & Worksheets(Worksheet).Rows.Count).End(xlUp).Row).Value2
+        For i = LBound(arrList) To UBound(arrList)
+            If InStr(1, arrList(i, 1), Trim(Me.TextBox5.Value), vbTextCompare) Then
+                DocumentsListBox.AddItem arrList(i, 1)
+                DocumentsListBox.List(x, 1) = arrList2(i, 1)
+                DocumentsListBox.List(c, 2) = arrList3(i, 1)
+                x = x + 1
+                c = c + 1
+            End If
+        Next i
+    End If
+ElseIf Len(TextBox6) = vbNullString Then
+    Call UserForm_Initialize 'If search textbox is empty retrieve all documents to list
+End If
+If Me.DocumentsListBox.ListCount = 1 Then Me.DocumentsListBox.Selected(0) = True
+
+
+exitSub:
+    Exit Sub
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while searching, please try again", vbOKOnly, "ERROR"
+    GoTo exitSub
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub Textbox7_Change()
+'==========================================================================================================================
+'Function: When typing to search textbox start seacrhing by dicipline
+'Input1: -
+'Output: -
+'Note: -
+'Version History:
+
+On Error GoTo catchError
+'Declare variables
+Dim i As Long
+Dim arrList As Variant, arrList2 As Variant, arrList3 As Variant
+Dim x As Long, c As Long
+
+'Place 0 to x variable
+x = 0
+c = 0
+
+'Declare workbook and worksheets to variables
+Workbook = "ARCO_ENGINEERING.xlsm"
+Worksheet = "Documents"
+
+'Pick up last used document row
+LastDocumentRow = GetLastRow(Workbook, Worksheet, 2)
+
+'Search
+Me.DocumentsListBox.Clear
+If Len(TextBox7) <> vbNullString Then
+    If Worksheets(Worksheet).Range("K" & Worksheets(Worksheet).Rows.Count).End(xlUp).Row > 1 And Trim(Me.TextBox7.Value) <> vbNullString Then
+        arrList = Worksheets(Worksheet).Range("B5:B" & Worksheets(Worksheet).Range("B" & Worksheets(Worksheet).Rows.Count).End(xlUp).Row).Value2
+        arrList2 = Worksheets(Worksheet).Range("L5:L" & Worksheets(Worksheet).Range("L" & Worksheets(Worksheet).Rows.Count).End(xlUp).Row).Value2
+        arrList3 = Worksheets(Worksheet).Range("K5:L" & Worksheets(Worksheet).Range("K" & Worksheets(Worksheet).Rows.Count).End(xlUp).Row).Value2
+        For i = LBound(arrList3) To UBound(arrList3)
+            If InStr(1, arrList3(i, 1), Trim(Me.TextBox7.Value), vbTextCompare) Then
+                DocumentsListBox.AddItem arrList(i, 1)
+                DocumentsListBox.List(x, 1) = arrList2(i, 1)
+                DocumentsListBox.List(c, 2) = arrList3(i, 1)
+                x = x + 1
+                c = c + 1
+            End If
+        Next i
+    End If
+ElseIf Len(TextBox7) = vbNullString Then
+    Call UserForm_Initialize 'If search textbox is empty retrieve all documents to list
+End If
+If Me.DocumentsListBox.ListCount = 1 Then Me.DocumentsListBox.Selected(0) = True
+
+
+exitSub:
+    Exit Sub
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while trying to find by dicipline, please try again", vbOKOnly, "ERROR"
+    GoTo exitSub
+
+End Sub
+'------------------ENDSUB----------------------
+
+
+

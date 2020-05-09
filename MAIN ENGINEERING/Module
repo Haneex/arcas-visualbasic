@@ -1,0 +1,66 @@
+'---Creator: Samu Lahti----
+'--Module: 3 (Arco.xlsm)---
+'----Start excel-----
+'-----Date: 01/2020-----
+'--------Rev.0----------
+
+
+Sub ToHELP_Click()
+'Opens HELP excel sheet for user'
+ThisWorkbook.Sheets("HELP").Activate
+End Sub
+
+Sub StartProcedures_Click()
+On Error GoTo err
+Dim ProjectName As String, selectedFolder As String 'Sets ProjectName and selectedFolder as a string variable'
+Dim fbObj As Object 'Sets fbOBJ as a Object to help with folder making'
+Dim fileExplorer As FileDialog 'Sets fileExplorer as a filedialog'
+Dim sFolder As String, dFolder As String 'Sets sourceFolder and destinationFolder as a String'
+
+sFolder = ""
+dFolder = ""
+selectedFolder = ""
+
+Set fileExplorer = Application.FileDialog(msoFileDialogFolderPicker) 'Let's ask users specified folder to store application
+
+fileExplorer.AllowMultiSelect = False 'Do not allow multi select
+
+With fileExplorer
+    If .Show = -1 Then 'If any folder is selected
+        selectedFolder = .SelectedItems(1)
+        ProjectName = InputBox("Please Enter Project name", "Project name", "Arco Project") 'Lets ask user what's the project's name
+        dFolder = (selectedFolder & "\" & ProjectName)
+        MsgBox ("Tools will be saved to: " & dFolder)
+    Else 'Else dialog is cancelled and closed and user will be informed
+        MsgBox "Cancelled, no Folder selected"
+        Exit Sub
+    End If
+End With
+
+'Creating folder and copying tools with user given project name
+sFolder = (Application.ThisWorkbook.Path & "\Tools") 'Specify where tools are using thisworkbook's path as a reference
+Application.ScreenUpdating = False 'Disables screen updating while running code
+Set fbObj = CreateObject("Scripting.FilesystemObject")
+If fbObj.FolderExists(dFolder) Then
+    MsgBox "Folder already found", vbInformation, "Folder found"
+Else
+    fbObj.CreateFolder (dFolder)
+    fbObj.Copyfolder sFolder, dFolder 'Copying necessary files to user specified path
+    MsgBox "Folder created successfully and all the necessary tools copied", vbExclamation, "Done!"
+End If
+
+
+'If all tools are copied succesfully, open engineering excel and close starting excel
+If CreateObject("Scripting.FileSystemObject").FileExists(dFolder & "\Arco_ENGINEERING.xlsm") Then
+    Workbooks.Open (dFolder & "\Arco_ENGINEERING.xlsm")
+    ThisWorkbook.Close
+Else
+    MsgBox "Engineering file not found, please try again"
+End If
+Application.ScreenUpdating = True 'Enables Screen Updating again'
+
+err:
+    MsgBox "Error occured, please try again"
+    Exit Sub
+End Sub
+

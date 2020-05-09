@@ -1,0 +1,468 @@
+'--------Creator: Samu Lahti---------
+'----------Module: InstList--------
+'-------Instrumentation Lists--------
+'-----------Date: 01/2020-------
+'---------------Rev.0-------------
+
+Dim strSelectedItem As Variant 'Dim strSelectedItem as variant to pick up selected item from combobox
+Dim ArcoWorkbook As String, ArcoDocumentsSheet As String, InstDBExcel As String, InstDBExcelSheet As String 'Dim workbooks and sheets in them
+Dim strSelectedItemRow As Long ' Dim variable to store row number for document
+Dim strSelectedListTemplate As String
+Dim strSelectedItemDOCID As String, strSelectedItemSubFolder As String, strSelectedItemFolder As String, strSelectedItemType As String
+Dim EndFolder As String, CurrentFolder As String, lastFile As String, strLastFolder As String, strTemplateFolder As String, strComparisonFile As String 'Set Folder variables as a String
+Dim strFolderName As String, strFolderExists As String
+Dim lDocumentNumberColumn As Long, lDocumentTitleColumn As Long, lDocumentTypeColumn, lDocumentDiciplineColumn As Long 'Dim variables to store column number
+Dim strDicipline As String, strDiciplineText As String, strDataBaseExcel As String, strDocumentName As String
+
+'================================================
+Private Sub ComboBoxInstLists_Change()
+'================================================
+'Function:  Run code if user selects document from list
+'Version History:
+
+'Get Selected value from combobox
+strSelectedItem = ComboBoxInstLists.Value
+
+'Get Rows and columns on document sheet for selected document
+lDocumentNumberColumn = GetLastColumn(ArcoWorkbook, ArcoDocumentsSheet, 4, "Document number")
+lDocumentTitleColumn = GetLastColumn(ArcoWorkbook, ArcoDocumentsSheet, 4, "Title 1")
+lDocumentTypeColumn = GetLastColumn(ArcoWorkbook, ArcoDocumentsSheet, 4, "Type")
+strSelectedItemRow = GetLastRow(ArcoWorkbook, ArcoDocumentsSheet, 2, strSelectedItem)
+
+'Add values to textboxes
+DocumentNumberBox.Value = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strSelectedItemRow, lDocumentNumberColumn).Value
+DocumentTitleBox.Value = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Cells(strSelectedItemRow, lDocumentTitleColumn).Value
+
+'Get selected item document number, type, folder and subfolder
+strSelectedItemType = Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Cells(Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Range("B:B"). _
+Find(What:=strSelectedItem, LookIn:=xlValues).Row, Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Type", LookIn:=xlValues).Column).Value
+
+strSelectedItemDOCID = Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Cells(Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Range("B:B"). _
+Find(What:=strSelectedItem, LookIn:=xlValues).Row, 2).Value
+
+If Not IsError(Application.Match(Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Cells(strSelectedItemRow, lDocumentTypeColumn).Value, Workbooks(ArcoWorkbook).Worksheets("ProjectInfo"). _
+Range("L:L"), 0)) Then
+
+    strSelectedItemFolder = Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Cells(Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Range("B:B"). _
+    Find(What:=strSelectedItem, LookIn:=xlValues).Row, Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Range("4:4"). _
+    Find(What:="Type", LookIn:=xlValues).Column).Value & " " & Workbooks(ArcoWorkbook).Sheets("ProjectInfo").Cells(Workbooks(ArcoWorkbook).Worksheets("ProjectInfo").Range("L:L"). _
+    Find(What:=strSelectedItemType, LookIn:=xlValues).Row, "M").Value
+    strSelectedItemSubFolder = Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Cells(Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Range("B:B"). _
+    Find(What:=strSelectedItem, LookIn:=xlValues).Row, Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Range("4:4").Find(What:="SubFolder", LookIn:=xlValues).Column).Value
+
+Else
+MsgBox "Selected document doesn't have valid type, will exit"
+Exit Sub
+End If
+
+'Find out where this current main file is located to find end file
+CurrentFolder = (Application.ThisWorkbook.Path)
+
+'Give path for template folder
+strTemplateFolder = CurrentFolder & "\Lists\Templates\"
+
+'Specify EndFolder (filename also) and LastFolder (no file name) as selected list
+If strSelectedItemSubFolder = vbNullString Then
+    If strDiciplineText = "Automation" Then
+        EndFolder = CurrentFolder & "\Project Documents\Automation\" & strSelectedItemFolder & "\" & strSelectedItemDOCID
+        strLastFolder = CurrentFolder & "\Project Documents\Automation\" & strSelectedItemFolder & "\"
+    ElseIf strDiciplineText = "Electrical" Then
+        EndFolder = CurrentFolder & "\Project Documents\Electrical\" & strSelectedItemFolder & "\" & strSelectedItemDOCID
+        strLastFolder = CurrentFolder & "\Project Documents\Electrical\" & strSelectedItemFolder & "\"
+    End If
+Else
+    If strDiciplineText = "Automation" Then
+        strFolderName = CurrentFolder & "\Project Documents\Automation\" & strSelectedItemFolder & "\" & strSelectedItemSubFolder & "\"
+        strFolderExists = Dir(strFolderName, vbDirectory)
+    ElseIf strDiciplineText = "Electrical" Then
+        strFolderName = CurrentFolder & "\Project Documents\Electrical\" & strSelectedItemFolder & "\" & strSelectedItemSubFolder & "\"
+        strFolderExists = Dir(strFolderName, vbDirectory)
+    End If
+    If strFolderExists = "" Then
+        If strDiciplineText = "Automation" Then
+            MkDir (CurrentFolder & "\Project Documents\Automation\" & strSelectedItemFolder & "\" & strSelectedItemSubFolder) 'Create Subfolder
+        ElseIf strDiciplineText = "Electrical" Then
+            MkDir (CurrentFolder & "\Project Documents\Electrical\" & strSelectedItemFolder & "\" & strSelectedItemSubFolder) 'Create Subfolder
+        End If
+    End If
+    If strDiciplineText = "Automation" Then
+        EndFolder = CurrentFolder & "\Project Documents\Automation\" & strSelectedItemFolder & "\" & strSelectedItemSubFolder & "\" & strSelectedItemDOCID
+        strLastFolder = CurrentFolder & "\Project Documents\Automation\" & strSelectedItemFolder & "\" & strSelectedItemSubFolder & "\"
+    ElseIf strDiciplineText = "Electrical" Then
+        EndFolder = CurrentFolder & "\Project Documents\Electrical\" & strSelectedItemFolder & "\" & strSelectedItemSubFolder & "\" & strSelectedItemDOCID
+        strLastFolder = CurrentFolder & "\Project Documents\Electrical\" & strSelectedItemFolder & "\" & strSelectedItemSubFolder & "\"
+    End If
+End If
+
+Call ComparisonFileCombo_Change
+Call ListTemplateComboBox_Change
+
+End Sub
+'--------------ENDSUB----------------------
+
+'================================================
+Private Sub ComparisonFileCombo_Change()
+'================================================
+'Function: Run code if user selects comparison file from combobox
+'Version History:
+
+Dim i As Integer
+Dim ListFiles1()
+
+'Get different templates from template folder to combobox
+If ComparisonFileCombo.ListCount = 1 Or ComparisonFileCombo.ListCount = 2 Then
+    If strLastFolder <> "" Then
+        ListFiles1 = ListFiles(strLastFolder, "comparison") 'ListFiles Function in Module1
+        For i = LBound(ListFiles1) To UBound(ListFiles1)
+            ComparisonFileCombo.AddItem (ListFiles1(i))
+        Next i
+    Else
+    MsgBox "List not selected"
+    End If
+End If
+
+'Get selected value from combobox and save value to variable
+strComparisonFile = ComparisonFileCombo.Value
+
+'Erase array
+Erase ListFiles1
+
+End Sub
+'--------------ENDSUB----------------------
+
+'================================================
+Private Sub DiciplineComboBox_Change()
+'================================================
+'Function: As user selects dicipline, run userform initialize to get new documents to combobox
+'Version History:
+
+Call UserForm_Initialize
+
+End Sub
+'--------------ENDSUB----------------------
+
+'================================================
+Private Sub ListTemplateComboBox_Change()
+'================================================
+'Function: As user selects template list, run this code
+'Version History:
+
+Dim i As Integer
+Dim ListFiles2()
+
+'Get different templates from template folder to combobox
+If ListTemplateComboBox.ListCount = 1 Then
+    If strLastFolder <> "" Then
+        ListFiles2 = ListFiles(strTemplateFolder, "template") 'ListFiles Function in Module1
+        For i = LBound(ListFiles2) To UBound(ListFiles2)
+            ListTemplateComboBox.AddItem (ListFiles2(i))
+        Next i
+    Else
+    MsgBox "List not selected"
+    End If
+End If
+
+'Get selected value from combobox and save value to variable
+strSelectedListTemplate = ListTemplateComboBox.Value
+
+'Erase array
+Erase ListFiles2
+
+End Sub
+'--------------ENDSUB----------------------
+
+'================================================
+Private Sub InstListsExit_Click()
+'================================================
+
+Unload Me
+
+End Sub
+'--------------ENDSUB----------------------
+
+'================================================
+Private Sub UserForm_Initialize()
+'================================================
+Dim lLastDocumentRow As Long
+Dim ListSheets() As String
+Dim iListsComboStartValue As Integer
+
+'On Error GoTo catchError
+
+ArcoWorkbook = "Arco_ENGINEERING.xlsm" 'Specify main excel name to variable
+ArcoDocumentsSheet = "Documents" 'Specify main excel document sheet to variable
+
+'Pick up last used document row and document number column
+lLastDocumentRow = Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Cells(Rows.Count, 2).End(xlUp).Row
+lDocumentNumberColumn = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Document number", LookIn:=xlValues).Column
+lDocumentTitleColumn = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Title 1", LookIn:=xlValues).Column
+lDocumentDiciplineColumn = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Dicipline", LookIn:=xlValues).Column
+lDocumentTypeColumn = Workbooks(ArcoWorkbook).Worksheets(ArcoDocumentsSheet).Range("4:4").Find(What:="Type", LookIn:=xlValues).Column
+
+'Settings for list combobox
+ComboBoxInstLists.ColumnCount = 3
+ComboBoxInstLists.Font.Size = 9
+ComboBoxInstLists.ColumnWidths = "100,450"
+
+'Get Dicipline value
+strDicipline = DiciplineComboBox.Value
+
+ComboBoxInstLists.Clear
+
+'Populate list combobox
+For i = 5 To lLastDocumentRow
+    If Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Cells(i, lDocumentDiciplineColumn).Value = strDicipline Then
+        If Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Cells(i, lDocumentTypeColumn).Value <> "" Then
+            iListsComboStartValue = i
+            ComboBoxInstLists.AddItem
+            ComboBoxInstLists.List(0 + i - iListsComboStartValue, 0) = Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Cells(i, lDocumentNumberColumn).Value
+            ComboBoxInstLists.List(0 + i - iListsComboStartValue, 1) = Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Cells(i, lDocumentTitleColumn).Value
+        Else
+            MsgBox "One or more document doesn't have document type assigned"
+        End If
+    End If
+Next i
+
+If ListTemplateComboBox.ListCount = 0 Then
+ListTemplateComboBox.AddItem "Select"
+End If
+
+If ComparisonFileCombo.ListCount = 0 Then
+ComparisonFileCombo.AddItem "Select"
+End If
+
+If DiciplineComboBox.ListCount = 0 Then
+DiciplineComboBox.AddItem "E"
+DiciplineComboBox.AddItem "I"
+End If
+
+If DatabaseSheetsComboBox.ListCount = 0 Then
+    If DiciplineComboBox <> vbNullString Then
+        strDicipline = DiciplineComboBox.Value
+        If strDicipline <> vbNullString Then
+            If strDicipline = "I" Then
+                strDiciplineText = "Automation"
+                strDataBaseExcel = "Instrumentation.xlsm"
+            ElseIf strDicipline = "E" Then
+                strDiciplineText = "Electrical"
+                strDataBaseExcel = "Electrification.xlsm"
+            End If
+        End If
+            ListSheets = MultiSheetArray(strDataBaseExcel) 'List sheets with multisheetarray function
+            For i = LBound(ListSheets) To UBound(ListSheets)
+            DatabaseSheetsComboBox.AddItem (ListSheets(i))
+            Next i
+    End If
+End If
+
+exitSub:
+    Exit Sub
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while initializing lists, make sure that documents don't have special characters and please try again", vbOKOnly, "Error"
+    GoTo exitSub
+
+
+End Sub
+'--------------ENDSUB----------------------
+
+'================================================
+Private Sub InstListsPrint_Click()
+'================================================
+Dim PTable As PivotTable 'Object reference for PivotTable
+Dim PCache As PivotCache 'Create PivotCache to define the source of the data
+Dim PRange As Range 'Create PivotRange for pivot data range
+Dim PSheet As Worksheet 'Create PivotSheet for worksheet
+Dim DSheet As Worksheet 'Create DataSheet for worksheet containing data
+Dim wb As Workbook 'Create Workbook variable to create new workbook when printing lists
+Dim LRow As Long, LColumn As Long 'Create LastRow And LastColumn variables
+Dim NameWS As Worksheet 'To rename new worksbooks sheet
+Dim lRow1 As Long, lColumn1 As Long 'Create row and column variables to store value for needed information row
+Dim FileExists As String 'Create variable to check if lists already exists
+Dim ProjectName As String 'Create variable for projectname
+Dim strCellValue As String, strCableTypeInCableList As String
+Dim LastRowOnCableList As Long
+Dim PrintAreaLastRow As Long, PrintAreaLastColumn As Long 'Variables to set print area for document
+Dim strDataBaseSheetName As String, strRevNr As String
+Dim sComparisonFilePath As String
+
+On Error GoTo catchError
+
+Application.ScreenUpdating = False
+Application.DisplayAlerts = False
+'Set instrumentation or electrical settings
+strDicipline = DiciplineComboBox.Value
+If strDicipline <> vbNullString Then
+    If strDicipline = "I" Then
+        strDiciplineText = "Automation"
+        strDataBaseExcel = "Instrumentation.xlsm"
+    ElseIf strDicipline = "E" Then
+        strDiciplineText = "Electrical"
+        strDataBaseExcel = "Electrification.xlsm"
+    End If
+Else
+    MsgBox "Dicipline not selected"
+    Exit Sub
+End If
+
+'If user Selects Cable lists, run this part of the code
+If strSelectedItem <> vbNullString Then
+    If strSelectedListTemplate <> vbNullString Then
+        For i = 0 To 15
+        'Create new workbook to Lists folder and check if file already exists and create next revision if it exists
+            FileExists = Dir(EndFolder & "_Rev." & i & ".xlsx")
+            If FileExists = "" Then
+                Set wb = Workbooks.Add
+                Application.DisplayAlerts = False
+                wb.SaveAs fileName:=EndFolder & "_Rev." & i & ".xlsx"
+                Application.DisplayAlerts = True
+                lastFile = strSelectedItemDOCID & "_Rev." & i & ".xlsx"
+                strRevNr = i
+            Exit For
+            Else
+            FileExists = Dir(EndFolder & "_Rev." & i + 1 & ".xlsx")
+                If FileExists = "" Then
+                    Set wb = Workbooks.Add
+                    Application.DisplayAlerts = False
+                    wb.SaveAs fileName:=EndFolder & "_Rev." & i + 1 & ".xlsx"
+                    Application.DisplayAlerts = True
+                    lastFile = strSelectedItemDOCID & "_Rev." & i + 1 & ".xlsx"
+                    strRevNr = i
+                    Exit For
+                End If
+            End If
+        Next
+    
+        'Open new workbook to create list to it
+        Workbooks.Open fileName:=CurrentFolder & "\Project Documents\" & strDiciplineText & "\" & strSelectedItemFolder & "\" & strSelectedItemSubFolder & "\" & lastFile, UpdateLinks:=1
+
+        'Copy front sheet to new workbook
+        If strSelectedListTemplate <> "" Then
+            Set closedBook = Workbooks.Open(CurrentFolder & "\Lists\Templates\" & strSelectedListTemplate)
+                closedBook.Sheets(1).Copy Before:=Workbooks(lastFile).Sheets(1)
+                closedBook.Close SaveChanges:=False
+        Else
+            MsgBox "Template not selected, exiting from lists"
+            Exit Sub
+        End If
+
+        'Write values to Front Sheet
+        lRow1 = Workbooks(ArcoWorkbook).Sheets(ArcoDocumentsSheet).Range("B:B").Find(What:=strSelectedItem, LookIn:=xlValues).Row 'Find row for specific document
+    
+        Call FillReportFrontSheet(lastFile, "FRONT SHEET", lRow1)
+
+        Workbooks(lastFile).Worksheets(2).Activate
+    
+        'Copy list sheet to new workbook
+        Set closedBook = Workbooks.Open(CurrentFolder & "\Lists\Templates\" & strSelectedListTemplate)
+            closedBook.Sheets(2).Copy After:=Workbooks(lastFile).Sheets(1)
+            closedBook.Close SaveChanges:=False
+    
+        'Rename worksheet to list
+        Set NameWS = Workbooks(lastFile).Worksheets(2)
+        NameWS.Name = "List"
+    
+        'Delete unnecessary sheet
+        Workbooks(lastFile).Sheets(3).Delete
+    
+        'Start getting information to list
+        'Workbooks(lastFile).Worksheets("List").Range("H1").Value = "='FRONT SHEET'!I31" 'Print reference to front sheet on list
+        'Workbooks(lastFile).Worksheets("List").Range("H2").Value = "='FRONT SHEET'!I36" 'Print reference to front sheet on list
+        'Workbooks(lastFile).Worksheets("List").Range("H4").Value = "='FRONT SHEET'!C32" 'Print reference to front sheet on list
+        'Workbooks(lastFile).Worksheets("List").Range("H5").Value = "='FRONT SHEET'!I34" 'Print reference to front sheet on list
+        'Workbooks(lastFile).Worksheets("List").Range("M2").Value = "='FRONT SHEET'!I32" 'Print reference to front sheet on list
+        'Workbooks(lastFile).Worksheets("List").Range("M3").Value = "='FRONT SHEET'!I33" 'Print reference to front sheet on list
+       
+        'Open database excel
+        Workbooks.Open fileName:=CurrentFolder & "\DataBase Excels\" & strDataBaseExcel, UpdateLinks:=1
+
+        strDataBaseSheetName = DatabaseSheetsComboBox.Value
+
+        'Print selected values to list
+        Call GenerateList(lastFile, strDataBaseExcel, strDataBaseSheetName, "List")
+
+        'Print rows to list
+        For i = 1 To GetLastRow(strDataBaseExcel, strDataBaseSheetName, 1)
+            Workbooks(lastFile).Worksheets("List").Cells(i + 6, 1).Value = i
+        Next i
+
+        'Set print area for cable list
+        PrintAreaLastRow = Workbooks(lastFile).Worksheets("List").Cells(Rows.Count, 2).End(xlUp).Row + 5
+        Workbooks(lastFile).Worksheets("List").PageSetup.PrintArea = "$A$1:$M$" & PrintAreaLastRow
+
+        'Save workbook
+        Workbooks(lastFile).Save
+
+        'Run comparison if user has selected it
+        If ComparisonEnabled = True Then
+
+            'Check that user gave also comparison file when checking comparison enabled
+            If ComparisonFileCombo.Value = vbNullString Then
+                MsgBox "Comparison file is not selected, will exit"
+                Exit Sub
+            End If
+
+            'If report is not user definied give assing key column value and if it's user own then ask key columns with ListComparison Userform
+            Select Case UCase(DatabaseSheetsComboBox.Value)
+            Case "CABLES"
+                lKeyColumn = 2
+            Case "CABLE PLATES"
+                lKeyColumn = 2
+            Case "CONNECTION LISTS"
+                lKeyColumn = 2
+            Case Else
+                ListComparison.Show
+            End Select
+
+            'Assing sComaprisonFilePath as a comparison file path to pass it to ListComparison Sub
+            sComparisonFilePath = strLastFolder & ComparisonFileCombo.Value
+
+            'Call ListComparison public sub
+            Call ListComparison1(sComparisonFilePath, lastFile, lKeyColumn, ComparisonFileCombo.Value)
+            
+            'Set print area for cable list
+            PrintAreaLastRow = Workbooks(lastFile).Worksheets("List").Cells(Rows.Count, 2).End(xlUp).Row + 5
+            Workbooks(lastFile).Worksheets("List").PageSetup.PrintArea = "$A$1:$M$" & PrintAreaLastRow
+            
+            Application.DisplayAlerts = True
+            Application.ScreenUpdating = True
+            
+            Workbooks(ArcoWorkbook).Activate
+            
+            MsgBox "List generated and compared successfully"
+            
+            Workbooks(lastFile).Activate
+            
+            End
+
+        Else 'If comparison is not selected then return message for the user that report has been generated succesfully
+            
+            Application.DisplayAlerts = True
+            Application.ScreenUpdating = True
+        
+            MsgBox "Report generated successfully"
+            End
+        End If
+    Else
+    MsgBox "List template not selected"
+    Exit Sub
+    End If
+Else
+MsgBox "List not selected, window will be closed"
+Exit Sub
+End If
+
+exitSub:
+    Exit Sub
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while generating or comparing lists, please try again", vbOKOnly, "Error"
+    GoTo exitSub
+
+Unload Me
+
+End Sub
+'--------------ENDSUB----------------------
+
+
+

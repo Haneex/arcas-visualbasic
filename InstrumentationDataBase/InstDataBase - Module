@@ -1,0 +1,231 @@
+'------------Creator: Samu Lahti--------------
+'----------Instrumentation Database----------
+'-------Instrumentation database codes--------
+'--------------Date: 03/2020-------
+'------------------Rev.0-------------
+
+Option Explicit   '<---- forces you to declare all your variables
+
+
+'==========================================================================================================================
+Public Sub CABLESUPDATE()
+'==========================================================================================================================
+'Function:  To update CABLES sheet on instrumentation database
+'Version History:
+
+Dim strDataBaseExcel As String, strDataBaseExcelSheetDATA As String, strDataBaseExcelSheetCABLES As String
+Dim lColumnTrunkCable As Long, lColumnTrunkCableInfo As Long, lRow As Long
+Dim lRowDeviceCable1, lRowDeviceCable2, lColumnCable1 As Long, lColumnCable2 As Long, lLastDeviceCableRow As Long
+Dim lLastRowOnCableList As Long, lCableTypeColumn As Long, LastRowOnSheet As Long, LastColumnOnSheet As Long
+Dim i As Long, j As Long, lTrunkCableCount As Long, lDeviceCableCount As Long
+Dim strCellValue As String, strCellValue1 As String, strCellValue2 As String, strTrunkCableInfo As String
+Dim lLastRowAfterTrunkCables As Long, lRowBeforeTrunkCables As Long
+Dim lColumnCable1Info As Long, lColumnCable2Info As Long
+
+'Declare variables
+strDataBaseExcel = "Instrumentation.xlsm"
+strDataBaseExcelSheetDATA = "DATA"
+strDataBaseExcelSheetCABLES = "CABLES"
+lTrunkCableCount = 0
+lLastDeviceCableRow = 0
+
+Application.ScreenUpdating = False
+
+'Check last column and row on sheet to remove values
+LastRowOnSheet = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetCABLES, 1)
+LastColumnOnSheet = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetCABLES, 1)
+
+'EMPTY CABLES sheet to place updated values
+For i = 2 To LastRowOnSheet
+    For j = 1 To LastColumnOnSheet
+         'If Not IsError(Application.Match(Workbooks(strDataBaseExcel).Sheets(strDataBaseExcelSheetCABLES).Cells(1, j).Value, _
+         'Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetDATA).Cells(1, j).EntireColumn, 0)) Then
+            Workbooks(strDataBaseExcel).Sheets(strDataBaseExcelSheetCABLES).Cells(i, j).Value = vbNullString
+         'End If
+    Next j
+Next i
+
+'Check what's the last row on database and cable list and save values to variables
+lColumnTrunkCable = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "TRUNCK CABLE NBR") 'Find column where trunk cable number is located
+lRow = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetDATA, lColumnTrunkCable) + 1
+lLastRowOnCableList = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetCABLES, 1) + 1
+
+'Save last row before trunk cables for info print
+lRowBeforeTrunkCables = lLastRowOnCableList
+    
+'Print Trunk cables to CABLES sheet
+For i = 4 To lRow
+    strCellValue = GetValue(strDataBaseExcel, strDataBaseExcelSheetDATA, i, lColumnTrunkCable)
+    Workbooks(strDataBaseExcel).Worksheets("CABLES").Activate
+    If IsError(Application.Match(strCellValue, Range("A:A"), 0)) Then 'Check if cable is already on the list
+        If strCellValue <> "" Then 'Check If value is not empty
+            Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetCABLES).Cells(lLastRowOnCableList, 1).Value = strCellValue
+            lLastRowOnCableList = lLastRowOnCableList + 1 'Add value to variable to move on next row
+            lTrunkCableCount = lTrunkCableCount + 1
+        End If
+    End If
+Next i
+
+'Save last value from trunk cables to see where device cables needs to start print
+lLastRowAfterTrunkCables = lLastRowOnCableList
+ 
+'Print Trunk cable CABLE TYPE to CABLES sheet
+lColumnTrunkCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "TRUNCK CABLE TYPE")
+Call CableInfoPrint("CABLE TYPE", lColumnTrunkCableInfo, lTrunkCableCount, lRowBeforeTrunkCables - 1, "TRUNCK CABLE NBR", lColumnTrunkCable)
+
+'Print Trunk cable FROM info to CABLES sheet
+lColumnTrunkCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "TRUNCK CABLE FROM")
+Call CableInfoPrint("CABLE FROM", lColumnTrunkCableInfo, lTrunkCableCount, lRowBeforeTrunkCables - 1, "TRUNCK CABLE NBR", lColumnTrunkCable)
+
+'Print Trunk cable FROM DESCRIPTION info to CABLES sheet
+lColumnTrunkCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "TRUNCK CABLE FROM DESCRIPTION")
+Call CableInfoPrint("FROM DESCRIPTION", lColumnTrunkCableInfo, lTrunkCableCount, lRowBeforeTrunkCables - 1, "TRUNCK CABLE NBR", lColumnTrunkCable)
+
+'Print Trunk cable TO info to CABLES sheet
+lColumnTrunkCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "TRUNCK CABLE TO")
+Call CableInfoPrint("CABLE TO", lColumnTrunkCableInfo, lTrunkCableCount, lRowBeforeTrunkCables - 1, "TRUNCK CABLE NBR", lColumnTrunkCable)
+
+'Print Trunk cable TO DESCRIPTION info to CABLES sheet
+lColumnTrunkCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "TRUNCK CABLE TO DESCRIPTION")
+Call CableInfoPrint("TO DESCRIPTION", lColumnTrunkCableInfo, lTrunkCableCount, lRowBeforeTrunkCables - 1, "TRUNCK CABLE NBR", lColumnTrunkCable)
+
+'Print Trunk cable SUPPLIER info to CABLES sheet
+lColumnTrunkCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "TRUNK CABLE SUPPLIER")
+Call CableInfoPrint("CABLE SUPPLIER", lColumnTrunkCableInfo, lTrunkCableCount, lRowBeforeTrunkCables - 1, "TRUNCK CABLE NBR", lColumnTrunkCable)
+
+'Print Trunk cable INSTALLER info to CABLES sheet
+lColumnTrunkCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "TRUNK CABLE INSTALLER")
+Call CableInfoPrint("CABLE INSTALLER", lColumnTrunkCableInfo, lTrunkCableCount, lRowBeforeTrunkCables - 1, "TRUNCK CABLE NBR", lColumnTrunkCable)
+
+'Print Trunk cable LENGHT info to CABLES sheet
+lColumnTrunkCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "TRUNCK CABLE LENGHT (m)")
+Call CableInfoPrint("LENGHT (ESTIMATED)", lColumnTrunkCableInfo, lTrunkCableCount, lRowBeforeTrunkCables - 1, "TRUNCK CABLE NBR", lColumnTrunkCable)
+
+'Print Trunk cable NOTE info to CABLES sheet
+lColumnTrunkCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "TRUNK CABLE NOTE")
+Call CableInfoPrint("CABLE NOTE", lColumnTrunkCableInfo, lTrunkCableCount, lRowBeforeTrunkCables - 1, "TRUNCK CABLE NBR", lColumnTrunkCable)
+
+'Print Trunk cable CLASS info to CABLES sheet
+lColumnTrunkCableInfo = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "TRUNK CABLE CLASS")
+Call CableInfoPrint("CABLE CLASS", lColumnTrunkCableInfo, lTrunkCableCount, lRowBeforeTrunkCables - 1, "TRUNCK CABLE NBR", lColumnTrunkCable)
+
+'Update column and row values for device cables
+lColumnCable1 = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 1 NBR")
+lColumnCable2 = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 2 NBR")
+lRowDeviceCable1 = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetDATA, lColumnCable1) + 1
+lRowDeviceCable2 = GetLastRow(strDataBaseExcel, strDataBaseExcelSheetDATA, lColumnCable2) + 1
+j = 4
+
+'Print device cable 1 & 2 to CABLE sheet
+For i = lLastRowAfterTrunkCables To (lLastRowAfterTrunkCables + lRowDeviceCable1 + lRowDeviceCable2 - 6)
+    strCellValue1 = GetValue(strDataBaseExcel, strDataBaseExcelSheetDATA, j, lColumnCable1)
+    strCellValue2 = GetValue(strDataBaseExcel, strDataBaseExcelSheetDATA, j, lColumnCable2)
+    Workbooks(strDataBaseExcel).Worksheets(2).Activate
+    If IsError(Application.Match(strCellValue1, Range("A:A"), 0)) Then 'Check if cable is already on the list
+        If strCellValue1 <> "" Then 'Check If value is not empty
+            Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetCABLES).Cells(lLastDeviceCableRow + lLastRowAfterTrunkCables, 1).Value = strCellValue1
+            lLastDeviceCableRow = lLastDeviceCableRow + 1 'Add value to variable to move on next row
+            lDeviceCableCount = lDeviceCableCount + 1
+        End If
+    End If
+    If IsError(Application.Match(strCellValue2, Range("A:A"), 0)) Then 'Check if cable is already on the list
+        If strCellValue2 <> "" Then 'Check If value is not empty
+            Workbooks(strDataBaseExcel).Worksheets(strDataBaseExcelSheetCABLES).Cells(lLastDeviceCableRow + lLastRowAfterTrunkCables, 1).Value = strCellValue2
+            lLastDeviceCableRow = lLastDeviceCableRow + 1 'Add value to variable to move on next row
+            lDeviceCableCount = lDeviceCableCount + 1
+        End If
+    End If
+    j = j + 1
+Next i
+
+'Print device cable 1 CABLE TYPE to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 1 TYPE")
+Call CableInfoPrint("CABLE TYPE", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 1 NBR", lColumnCable1)
+
+'Print device cable 1 CABLE FROM to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 1 FROM")
+Call CableInfoPrint("CABLE FROM", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 1 NBR", lColumnCable1)
+
+'Print device cable 1 CABLE FROM DESCRIPTION to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 1 FROM DESCRIPTION")
+Call CableInfoPrint("FROM DESCRIPTION", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 1 NBR", lColumnCable1)
+
+'Print device cable 1 CABLE TO to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 1 TO")
+Call CableInfoPrint("CABLE TO", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 1 NBR", lColumnCable1)
+
+'Print device cable 1 CABLE TO DESCRIPTION to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 1 TO DESCRIPTION")
+Call CableInfoPrint("TO DESCRIPTION", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 1 NBR", lColumnCable1)
+
+'Print device cable 1 CABLE SUPPLIER to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 1 TO SUPPLIER")
+Call CableInfoPrint("CABLE SUPPLIER", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 1 NBR", lColumnCable1)
+
+'Print device cable 1 CABLE INSTALLER to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 1 TO INSTALLER")
+Call CableInfoPrint("CABLE INSTALLER", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 1 NBR", lColumnCable1)
+
+'Print device cable 1 CABLE LEGHT to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 1 LENGHT (m)")
+Call CableInfoPrint("LENGHT (ESTIMATED)", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 1 NBR", lColumnCable1)
+
+'Print device cable 1 CABLE CLASS to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 1 CLASS")
+Call CableInfoPrint("CABLE CLASS", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 1 NBR", lColumnCable1)
+
+'Print device cable 1 CABLE NOTE to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 1 NOTE")
+Call CableInfoPrint("CABLE NOTE", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 1 NBR", lColumnCable1)
+
+'Print device cable 2 CABLE TYPE to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 2 TYPE")
+Call CableInfoPrint("CABLE TYPE", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 2 NBR", lColumnCable2)
+
+'Print device cable 2 CABLE FROM to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 2 FROM")
+Call CableInfoPrint("CABLE FROM", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 2 NBR", lColumnCable2)
+
+'Print device cable 2 CABLE FROM DESCRIPTION to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 2 FROM DESCRIPTION")
+Call CableInfoPrint("FROM DESCRIPTION", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 2 NBR", lColumnCable2)
+
+'Print device cable 2 CABLE TO to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 2 TO")
+Call CableInfoPrint("CABLE TO", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 2 NBR", lColumnCable2)
+
+'Print device cable 2 CABLE TO DESCRIPTION to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 2 TO DESCRIPTION")
+Call CableInfoPrint("TO DESCRIPTION", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 2 NBR", lColumnCable2)
+
+'Print device cable 2 CABLE SUPPLIER to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 2 TO SUPPLIER")
+Call CableInfoPrint("CABLE SUPPLIER", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 2 NBR", lColumnCable2)
+
+'Print device cable 2 CABLE INSTALLER to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 2 TO INSTALLER")
+Call CableInfoPrint("CABLE INSTALLER", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 2 NBR", lColumnCable2)
+
+'Print device cable 2 CABLE LEGHT to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 2 LENGHT (m)")
+Call CableInfoPrint("LENGHT (ESTIMATED)", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 2 NBR", lColumnCable2)
+
+'Print device cable 2 CABLE CLASS to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 2 CLASS")
+Call CableInfoPrint("CABLE CLASS", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 2 NBR", lColumnCable2)
+
+'Print device cable 2 CABLE NOTE to CABLES sheet
+lColumnCable1Info = GetLastColumn(strDataBaseExcel, strDataBaseExcelSheetDATA, 3, "DEVICE CABLE 2 NOTE")
+Call CableInfoPrint("CABLE NOTE", lColumnCable1Info, lDeviceCableCount + lLastRowAfterTrunkCables, lLastRowAfterTrunkCables - 1, "DEVICE CABLE 2 NBR", lColumnCable2)
+ 
+Application.ScreenUpdating = True
+ 
+End Sub
+'------------------ENDSUB----------------------
+
+
+
+
+
+
+

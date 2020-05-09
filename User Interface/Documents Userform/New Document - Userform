@@ -1,0 +1,63 @@
+'--------Creator: Samu Lahti---------
+'-------Userform: New Document--------
+'-----------New Document--------------
+'-----------Date: 01/2020-------
+'--------------Rev.0---------------
+
+Option Explicit   '<---- forces you to declare all your variables
+
+'==========================================================================================================================
+Private Sub AddNewDocument_Click()
+'==========================================================================================================================
+'Function: Runs code which adds new document to documents sheet
+'Input1: -
+'Output: -
+'Note: -
+
+On Error GoTo catchError
+'Declare Variables
+Dim Workbook As String, Worksheet As String
+Dim LastDocumentRow As Long, DocumentColumn As Long, DocumentTitle1Column As Long
+
+'Declare workbook and worksheets to variables
+Workbook = "ARCO_ENGINEERING.xlsm"
+Worksheet = "Documents"
+
+'Pick up last used document row
+LastDocumentRow = GetLastRow(Workbook, Worksheet, "2") + 1
+
+'Specify which column has values
+DocumentColumn = GetLastColumn(Workbook, Worksheet, "4", "Document number")
+DocumentTitle1Column = GetLastColumn(Workbook, Worksheet, "4", "Title 1")
+
+'Write new document values to documents sheet
+
+If DocumentNumberBox1.Value <> vbNullString Or Title1Box1.Value <> vbNullString Then
+    If DocumentNumberBox1.Value <> vbNullString And Title1Box1.Value <> vbNullString Then
+        Call SaveValue(Workbook, Worksheet, LastDocumentRow, DocumentColumn, DocumentNumberBox1.Value)
+    Else
+        MsgBox "Document number is not given", vbOKOnly, "Error"
+        Exit Sub
+    End If
+    If Title1Box1.Value <> vbNullString And DocumentNumberBox1.Value <> vbNullString Then
+        Call SaveValue(Workbook, Worksheet, LastDocumentRow, DocumentTitle1Column, Title1Box1.Value)
+    Else
+        MsgBox "Document title is not given", vbOKOnly, "Error"
+        Exit Sub
+    End If
+Else
+    MsgBox "Document title or number is not given", vbOKOnly, "Error"
+    Exit Sub
+End If
+
+'Unload userform
+Unload Me
+
+exitSub:
+    Exit Sub
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while adding new document, please try again", vbOKOnly, "ERROR"
+    GoTo exitSub
+End Sub
+'------------------ENDSUB----------------------

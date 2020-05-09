@@ -1,0 +1,336 @@
+'---------Creator: Samu Lahti---------
+'-----------ArcoFunctions--------------
+'-------------Functions-----------------
+'-----------Date: 01/2020------------
+'---------------Rev.0--------------
+
+'==========================================================================================================================
+Public Function ListFiles(ByVal strPath As String, ByVal strMessage As String) As Variant()
+'==========================================================================================================================
+'Function: Public function to check files in specified folder and store file names to array
+'Input1: sPath for path folder to find files in
+'Input2: strMessage to return message if value not found
+'Output: array where file names in specified folder
+'Version History:
+
+'Declare  Variables
+Dim vaArray As Variant
+Dim i As Integer
+Dim oFile As Object, oFSO As Object, oFolder As Object, oFiles As Object
+
+'Set objects to start folder finding
+Set oFSO = CreateObject("Scripting.FileSystemObject")
+Set oFolder = oFSO.GetFolder(strPath)
+Set oFiles = oFolder.Files
+
+'Searh files in specified folder
+If oFiles.Count <> 0 Then '/If Files found
+    ReDim vaArray(1 To oFiles.Count)
+    i = 1
+    For Each oFile In oFiles
+        vaArray(i) = oFile.Name
+        i = 1 + 1
+    Next
+Else '/If Files are not found
+    MsgBox strMessage & " files not found" 'Give user message that files are not found in given folder
+    ReDim vaArray(0)
+    vaArray(0) = "Files not found"
+    ListFiles = vaArray
+    Erase vaArray 'Erase vaArray to prevent any leftovers
+    Exit Function
+End If
+
+'Place file values to array
+ListFiles = vaArray
+
+'Erase vaArray to prevent any leftovers
+Erase vaArray
+
+End Function
+'------------------ENDFUNCTION----------------------
+
+'==========================================================================================================================
+Public Function GetLastRow(ByVal strWorkbook As String, ByVal strWorkSheet As String, ByVal strColumn As Long, Optional ByVal strSearchValue As String) As Long
+'==========================================================================================================================
+'Input1: strWorkBook to give workbook where last row needs to be searched
+'Input2: strWorkSheet to give worksheet where last row needs to be searched
+'Input3: strColumn to specify which column value needs to be searched, if not provided value will be searched from column 1
+'Input4: strSearchValue to specify string which needs to be find if lookin for column with certain value
+'Output: Row number as string
+'Version History:
+
+On Error GoTo catchError
+If strWorkbook = vbNullString Then Exit Function
+If strWorkSheet = vbNullString Then Exit Function
+
+If strSearchValue = vbNullString Then
+    If strColumn = 0 Then
+        'Find last used row in a sheet.
+        GetLastRow = Workbooks(strWorkbook).Worksheets(strWorkSheet).Cells.Find("*", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+    Else
+        'Find last used row in a column
+         GetLastRow = Workbooks(strWorkbook).Worksheets(strWorkSheet).Cells(Rows.Count, strColumn).End(xlUp).Row
+    End If
+Else
+    'Find last used row in a column with search value
+    GetLastRow = Workbooks(strWorkbook).Worksheets(strWorkSheet).Cells(strColumn).EntireColumn.Find(What:=strSearchValue, LookIn:=xlValues).Row
+End If
+
+exitSub:
+    Exit Function
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while trying to find last Row, please try again", vbOKOnly, "ERROR"
+    GoTo exitSub
+
+End Function
+'------------------ENDFUNCTION----------------------
+
+'==========================================================================================================================
+Public Function GetLastColumn(ByVal strWorkbook As String, ByVal strWorkSheet As String, ByVal LRow As Long, Optional ByVal strSearchValue As String) As Long
+'==========================================================================================================================
+'Function: Public function to get last column in specified row
+'Input1: strWorkBook to give workbook where last column needs to be searched
+'Input2: strWorkSheet to give worksheet where last column needs to be searched
+'Input3: lRow to specify which row value needs to be searched, if not provided value will be searched from row 1
+'Input4: strSearchValue to specify string which needs to be find if lookin for column with certain value
+'Output: Column number as string
+'Version History:
+
+On Error GoTo catchError
+If strWorkbook = vbNullString Then Exit Function
+If strWorkSheet = vbNullString Then Exit Function
+If LRow = 0 Then LRow = "1"
+
+If strSearchValue = vbNullString Then
+
+    GetLastColumn = Workbooks(strWorkbook).Worksheets(strWorkSheet).Cells(LRow, Columns.Count).End(xlToLeft).Column
+
+Else
+
+    GetLastColumn = Workbooks(strWorkbook).Worksheets(strWorkSheet).Range("" & LRow & ":" & LRow & "").Find(What:=strSearchValue, LookIn:=xlValues).Column
+    
+End If
+
+exitSub:
+    Exit Function
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while trying to find last Column, please try again", vbOKOnly, "ERROR"
+    GoTo exitSub
+
+End Function
+'------------------ENDFUNCTION----------------------
+
+'==========================================================================================================================
+Public Function GetValue(ByVal strWorkbook As String, ByVal strWorkSheet As String, ByVal LRow As Long, ByVal strColumn As Long, Optional MergedCells As Boolean) As String
+'==========================================================================================================================
+'Function: Public function to get value from specified workbook and -sheet with specified coordinaters
+'Input1: strWorkBook to give workbook where value needs to be searched
+'Input2: strWorkSheet to give worksheet where value needs to searched
+'Input3: lRow to specify which row has value
+'Input4: strColumn to specify which column has value
+'Output: Value as string
+'Version History:
+
+If strWorkbook = vbNullString Then Exit Function
+If strWorkSheet = vbNullString Then Exit Function
+
+If MergedCells = False Then
+GetValue = Workbooks(strWorkbook).Worksheets(strWorkSheet).Cells(LRow, strColumn).Value
+Else
+GetValue = Workbooks(strWorkbook).Worksheets(strWorkSheet).Range(Cells(LRow, strColumn), Cells(LRow, strColumn)).MergeArea.Cells(1, 1).Value
+End If
+
+
+End Function
+'------------------ENDFUNCTION----------------------
+
+'==========================================================================================================================
+Public Function FileExists(strFileName As String) As Boolean
+'==========================================================================================================================
+'Function: Check if given file already exist in the system
+'Input1: strFileName as a hole path for the file
+'Output: TRUE if file already exist and FALSE otherwise
+'Version History:
+
+  Dim objFSO As Object
+  Set objFSO = CreateObject("Scripting.FileSystemObject")
+  FileExists = objFSO.FileExists(strFileName)
+  Set objFSO = Nothing 'Clear objFSO for next check
+End Function
+'------------------ENDFUNCTION----------------------
+
+'==========================================================================================================================
+Public Function AutomaticSelection(ByVal strWorkbook As String, ByVal strWorkSheet As String, ByVal strMotorPower As String, ByVal strMotorCurrent As Long) As Variant()
+'==========================================================================================================================
+'Function: This function is used to pick components for motor automatically
+'Input1: Workbook name as string
+'Input2: Sheet name as string
+'Input3: Motor power as string
+'Input4: Motor current as string
+'Output: -
+'Version History:
+
+'Declare  Variables
+Dim vaArray(14) As Variant
+Dim LRow As Long, LColumn As Long
+Dim lPowerColumn As Long, l750rpmColumn As Long, l1000rpmColumn As Long, l1500rpmColumn As Long, l3000rpmColumn As Long, lFuseBaseColumn As Long, _
+lFuseColumn As Long, lContactorTypeColumn As Long, lCurrentTypeColumn As Long, lCurrentRangeColumn As Long, lBUColumn As Long, lCable1Column As Long, _
+lCable2Column As Long, lSafetySwitchColumn As Long
+
+'Assign column values to variables
+lPowerColumn = GetLastColumn(strWorkbook, strWorkSheet, 5, "kW")
+l750rpmColumn = GetLastColumn(strWorkbook, strWorkSheet, 5, "rpm (750)")
+l1000rpmColumn = GetLastColumn(strWorkbook, strWorkSheet, 5, "rpm (1000)")
+l1500rpmColumn = GetLastColumn(strWorkbook, strWorkSheet, 5, "rpm (1500)")
+l3000rpmColumn = GetLastColumn(strWorkbook, strWorkSheet, 5, "rpm (3000)")
+lFuseBaseColumn = GetLastColumn(strWorkbook, strWorkSheet, 5, "BASE")
+lFuseColumn = GetLastColumn(strWorkbook, strWorkSheet, 5, "(A)")
+lContactorTypeColumn = GetLastColumn(strWorkbook, strWorkSheet, 5, "C TYPE")
+lCurrentTypeColumn = GetLastColumn(strWorkbook, strWorkSheet, 5, "TYPE (CM)")
+lCurrentRangeColumn = GetLastColumn(strWorkbook, strWorkSheet, 5, "SETTING RANGE (A)")
+lBUColumn = GetLastColumn(strWorkbook, strWorkSheet, 5, "TYPE (BU)")
+lCable1Column = GetLastColumn(strWorkbook, strWorkSheet, 5, "SIZE mm2 (Cu)")
+lCable2Column = GetLastColumn(strWorkbook, strWorkSheet, 5, "SIZE mm2 (Al)")
+lSafetySwitchColumn = GetLastColumn(strWorkbook, strWorkSheet, 5, "SAFETY SWITCH")
+
+'Assing selected power row number to variable
+LRow = GetLastRow(strWorkbook, strWorkSheet, lPowerColumn, strMotorPower)
+
+'Check if current is right for selected motor power and if it exceeds current value then get values from next motor size
+If Cells(LRow, l750rpmColumn).Value >= strMotorCurrent Or Cells(LRow, l1000rpmColumn).Value >= strMotorCurrent Or _
+Cells(LRow, l1500rpmColumn).Value >= strMotorCurrent Or Cells(LRow, l3000rpmColumn).Value >= strMotorCurrent Then
+    LRow = LRow
+Else
+    LRow = LRow + 1
+End If
+
+'Save values to array
+vaArray(0) = GetValue(strWorkbook, strWorkSheet, LRow, lPowerColumn, True)
+vaArray(1) = GetValue(strWorkbook, strWorkSheet, LRow, l750rpmColumn, True)
+vaArray(2) = GetValue(strWorkbook, strWorkSheet, LRow, l1000rpmColumn, True)
+vaArray(3) = GetValue(strWorkbook, strWorkSheet, LRow, l1500rpmColumn, True)
+vaArray(4) = GetValue(strWorkbook, strWorkSheet, LRow, l3000rpmColumn, True)
+vaArray(5) = GetValue(strWorkbook, strWorkSheet, LRow, lFuseBaseColumn, True)
+vaArray(6) = GetValue(strWorkbook, strWorkSheet, LRow, lFuseColumn, True)
+vaArray(7) = GetValue(strWorkbook, strWorkSheet, LRow, lContactorTypeColumn, True)
+vaArray(8) = GetValue(strWorkbook, strWorkSheet, LRow, lCurrentTypeColumn, True)
+vaArray(9) = GetValue(strWorkbook, strWorkSheet, LRow, lCurrentRangeColumn, True)
+vaArray(10) = GetValue(strWorkbook, strWorkSheet, LRow, lBUColumn, True)
+vaArray(11) = GetValue(strWorkbook, strWorkSheet, LRow, lCable1Column, True)
+vaArray(12) = GetValue(strWorkbook, strWorkSheet, LRow, lCable2Column, True)
+vaArray(13) = GetValue(strWorkbook, strWorkSheet, LRow, lSafetySwitchColumn, True)
+
+'Place motor selectection values to array
+AutomaticSelection = vaArray
+
+End Function
+'------------------ENDFUNCTION----------------------
+
+'==========================================================================================================================
+ Public Function MultiSheetArray(ByVal Workbook As String) As String()
+'==========================================================================================================================
+'Function: This function is used to store sheet names to array
+'Input1: Workbook name as string
+'Output: -
+'Version History:
+
+On Error GoTo catchError
+
+'allows you to store an array of sheets
+Dim ws As Worksheet
+Dim shtArray() As String
+Dim intA As Integer
+Dim intB As Integer
+Dim sfileName As String
+
+'Find out where this current main file is located to find end file
+sfileName = (Application.ThisWorkbook.Path) & "\DataBase Excels\" & Workbook
+
+'Call function to check if the file is open
+'If IsFileOpen(sfileName) = False Then
+
+    'Workbooks.Open fileName:=sfileName
+    
+'End If
+
+Set closedBook = Workbooks.Open(sfileName)
+
+' First you need to enter the sheet names into an array
+For Each ws In closedBook.Worksheets
+ intA = intA + 1
+ ReDim Preserve shtArray(intA)
+ shtArray(intA) = ws.Name
+Next ws
+
+closedBook.Close SaveChanges:=False
+
+' Now list the sheets we entered into our array "shtArray"
+'For intB = 1 To intA
+'MultiSheetArray(intB) = shtArray(intB)
+'Next intB
+
+'Place file values to array
+MultiSheetArray = shtArray
+
+'Erase shtArray to prevent any leftovers
+Erase shtArray
+
+exitSub:
+    Exit Function
+catchError:
+    '/ Give user error message
+    MsgBox "Unidentified error occured while trying to find sheets on database excel, please try again", vbOKOnly, "ERROR"
+    GoTo exitSub
+
+End Function
+'------------------ENDFUNCTION----------------------
+
+'==========================================================================================================================
+Function IsFileOpen(fileName As String)
+'==========================================================================================================================
+'Function: This function is used to check if file is already open
+'Input1: fileName which is whole path for the file
+'Output: True or False. True=File is open & False=File is not open
+'Version History:
+
+Dim fileNum As Integer
+Dim errNum As Integer
+
+'Allow all errors to happen
+On Error Resume Next
+fileNum = FreeFile()
+
+'Try to open and close the file for input.
+'Errors mean the file is already open
+Open fileName For Input Lock Read As #fileNum
+Close fileNum
+
+'Get the error number
+errNum = err
+
+'Do not allow errors to happen
+On Error GoTo 0
+
+'Check the Error Number
+Select Case errNum
+
+    'errNum = 0 means no errors, therefore file closed
+    Case 0
+    IsFileOpen = False
+ 
+    'errNum = 70 means the file is already open
+    Case 70
+    IsFileOpen = True
+
+    'Something else went wrong
+    Case Else
+    IsFileOpen = errNum
+
+End Select
+
+End Function
+'------------------ENDFUNCTION----------------------
+
+

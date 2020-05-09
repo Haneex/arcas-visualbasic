@@ -1,0 +1,65 @@
+'-----Creator: Samu Lahti---------
+'-------Userform: LogIn--------
+'-----------LogIn------------
+'-------Date: 03/2020------------
+'-----------Rev.0-----------------
+
+
+'==========================================================================================================================
+Private Sub LogInbtn_Click()
+'==========================================================================================================================
+'Function: Give user ability to log in to use the tool
+
+Dim ZoneName As String
+Dim Password As Variant
+Dim Ws As Worksheet, Ws1 As Worksheet
+
+'Me.PasswordText.InputMask = "Password"
+
+If UserNameText.Value = "" Then
+MsgBox "Username must be entered", vbInformation, "Error"
+Exit Sub
+End If
+
+If PasswordText.Value = "" Then
+MsgBox "Password must be entered", vbInformation, "Error"
+Exit Sub
+End If
+
+UserName = "Admin"
+Password = "AdminPassword645"
+
+If UserNameText.Value = "Admin" And PasswordText.Value = "AdminPassword645" Then
+
+    Unload Me
+
+    For Each Ws In ActiveWorkbook.Worksheets
+    Ws.Visible = xlSheetVisible
+    Next Ws
+    Sheets("USER").Select
+    
+    'For Each Ws1 In ActiveWorkbook.Worksheets
+    'If Ws.Name = "START" Then
+    'Ws.Visible = xlSheetVeryHidden
+    'Next Ws
+    
+ElseIf Password <> PasswordText.Value Then
+    MsgBox "Password is not matching", vbInformation, "Wrong Password"
+ElseIf UserName <> UserNameText.Value Then
+    MsgBox "Username is not matching", vbInformation, "Wrong Password"
+End If
+
+End Sub
+'-----------------ENDSUB---------------------------
+
+'==========================================================================================================================
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+'==========================================================================================================================
+'Function: Prevents use of the Close button
+
+     If CloseMode = vbFormControlMenu Then
+          MsgBox "Clicking the Close button does not work."
+          Cancel = True
+     End If
+End Sub
+'-----------------ENDSUB---------------------------

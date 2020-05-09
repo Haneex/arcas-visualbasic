@@ -1,0 +1,165 @@
+'---------Creator: Samu Lahti---------
+'-------Userform: GenerateOptions--------
+'------------GenerateOptions------------
+'-------------Date: 03/2020------------
+'----------------Rev.0-----------------
+
+
+
+'==========================================================================================================================
+Private Sub btnElectOutputdir_Click()
+'==========================================================================================================================
+'Function: Select folder for Electrfication output folder
+
+Dim fileExplorer As FileDialog 'Sets fileExplorer as a filedialog'
+
+selectedFolder = ""
+
+Set fileExplorer = Application.FileDialog(msoFileDialogFolderPicker) 'Let's ask users specified folder to store application
+
+fileExplorer.AllowMultiSelect = False 'Do not allow multi select
+
+With fileExplorer
+    If .Show = -1 Then 'If any folder is selected
+        selectedFolder = .SelectedItems(1)
+        InstOutDirText.Value = selectedFolder
+    Else 'Else dialog is cancelled and closed and user will be informed
+        MsgBox "Cancelled, no Folder selected"
+        Exit Sub
+    End If
+End With
+
+
+End Sub
+'------------------ENDSUB----------------------
+
+
+'==========================================================================================================================
+Private Sub btnInstOutputdir_Click()
+'==========================================================================================================================
+'Function: Select folder for Electrfication output folder
+
+Dim fileExplorer As FileDialog 'Sets fileExplorer as a filedialog'
+
+selectedFolder = ""
+
+Set fileExplorer = Application.FileDialog(msoFileDialogFolderPicker) 'Let's ask users specified folder to store application
+
+fileExplorer.AllowMultiSelect = False 'Do not allow multi select
+
+With fileExplorer
+    If .Show = -1 Then 'If any folder is selected
+        selectedFolder = .SelectedItems(1)
+        ElectOutDirText.Value = selectedFolder
+    Else 'Else dialog is cancelled and closed and user will be informed
+        MsgBox "Cancelled, no Folder selected"
+        Exit Sub
+    End If
+End With
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub btnTemplateElectDir_Click()
+'==========================================================================================================================
+'Function: Select folder for Electrfication template folder
+
+Dim fileExplorer As FileDialog 'Sets fileExplorer as a filedialog'
+
+selectedFolder = ""
+
+Set fileExplorer = Application.FileDialog(msoFileDialogFolderPicker) 'Let's ask users specified folder to store application
+
+fileExplorer.AllowMultiSelect = False 'Do not allow multi select
+
+With fileExplorer
+    If .Show = -1 Then 'If any folder is selected
+        selectedFolder = .SelectedItems(1)
+        ElectTMPDIRText.Value = selectedFolder
+    Else 'Else dialog is cancelled and closed and user will be informed
+        MsgBox "Cancelled, no Folder selected"
+        Exit Sub
+    End If
+End With
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub btnTemplateInstDir_Click()
+'==========================================================================================================================
+'Function: Select folder for Instrumentation template folder
+
+Dim fileExplorer As FileDialog 'Sets fileExplorer as a filedialog'
+
+selectedFolder = ""
+
+Set fileExplorer = Application.FileDialog(msoFileDialogFolderPicker) 'Let's ask users specified folder to store application
+
+fileExplorer.AllowMultiSelect = False 'Do not allow multi select
+
+With fileExplorer
+    If .Show = -1 Then 'If any folder is selected
+        selectedFolder = .SelectedItems(1)
+        InstTMPDIRText.Value = selectedFolder
+    Else 'Else dialog is cancelled and closed and user will be informed
+        MsgBox "Cancelled, no Folder selected"
+        Exit Sub
+    End If
+End With
+
+
+
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub OptionsSaveBTN_Click()
+'==========================================================================================================================
+'Function: To save generate options to options sheet on UI excel
+
+Dim strWorkbook As String, strWorksheet As String
+
+strWorkbook = "ARCO_ENGINEERING.xlsm"
+strWorksheet = "GENERATEINFO"
+
+Call SaveValue(strWorkbook, strWorksheet, 1, 2, InputSheetText.Value) 'Save INPUT SHEET value
+Call SaveValue(strWorkbook, strWorksheet, 2, 2, TagColumnText.Value) 'Save TAG COLUMN value
+Call SaveValue(strWorkbook, strWorksheet, 3, 2, ElectTMPDIRText.Value) 'Save TMPL DIR ELECT value
+Call SaveValue(strWorkbook, strWorksheet, 4, 2, InstTMPDIRText.Value) 'Save TMPL DIR INST value
+Call SaveValue(strWorkbook, strWorksheet, 5, 2, ElectOutDirText.Value) 'Save OUTPUT DIR ELECT value
+Call SaveValue(strWorkbook, strWorksheet, 6, 2, InstOutDirText.Value) 'Save OUTPUT DIR INST value
+Call SaveValue(strWorkbook, strWorksheet, 7, 2, TemplateText.Value) 'Save TEMPLATE value
+Call SaveValue(strWorkbook, strWorksheet, 8, 2, FilenameText.Value) 'Save FILENAME value
+Call SaveValue(strWorkbook, strWorksheet, 9, 2, AutoCADText.Value) 'Save AUTOCAD value
+
+Unload Me
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub UserForm_Initialize()
+'==========================================================================================================================
+'Function: Initialize Userform
+
+Dim strWorkbook As String, strWorksheet As String
+
+strWorkbook = "ARCO_ENGINEERING.xlsm"
+strWorksheet = "GENERATEINFO"
+
+'Pick values to textboxes
+InputSheetText.Value = GetValue(strWorkbook, strWorksheet, 1, 2)
+TagColumnText.Value = GetValue(strWorkbook, strWorksheet, 2, 2)
+ElectTMPDIRText.Value = GetValue(strWorkbook, strWorksheet, 3, 2)
+InstTMPDIRText.Value = GetValue(strWorkbook, strWorksheet, 4, 2)
+ElectOutDirText.Value = GetValue(strWorkbook, strWorksheet, 5, 2)
+InstOutDirText.Value = GetValue(strWorkbook, strWorksheet, 6, 2)
+TemplateText.Value = GetValue(strWorkbook, strWorksheet, 7, 2)
+FilenameText.Value = GetValue(strWorkbook, strWorksheet, 8, 2)
+AutoCADText.Value = GetValue(strWorkbook, strWorksheet, 9, 2)
+
+
+End Sub

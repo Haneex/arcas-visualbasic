@@ -1,0 +1,247 @@
+'-----Creator: Samu Lahti------
+'--Module: ProjectInfoForm Code--
+'-------Project info--------
+'-------Date: 01/2020-------
+'-----------Rev.0-------------
+
+'==========================================================================================================================
+Private Sub Cancel_Click()
+'==========================================================================================================================
+
+Unload Me
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub ClearButton_Click()
+'==========================================================================================================================
+'Function: Clear all values in project info userform
+'Input1: -
+'Output: -
+'Version History:
+
+'Load clear value to Cells'
+If MsgBox("All info will be deleted. Do you want to continue?", vbYesNoCancel) = vbYes Then 'Make sure that user didn't press button by accident
+    ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 1).Value = "" 'Clear Project Name
+    ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 2).Value = "" 'Clear Customer Name
+    ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 3).Value = "" 'Clear Date
+    ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 4).Value = "" 'Clear Instrumentation Designer Name
+    ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 5).Value = "" 'Clear Electrification Designer Name
+    ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 6).Value = "" 'Clear Instrumentation Acceptor Name
+    ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 7).Value = "" 'Clear Electrification Acceptor Name
+    ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 8).Value = "" 'Clear Instrumentation Publisher Name
+    ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 9).Value = "" 'Clear Electrifcation Publisher Name
+    ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 10).Value = "" 'Clear Instrumentation Status
+    ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 11).Value = "" 'Clear Electrification Status
+End If
+
+'Update all the text boxes regarding cell value
+ProjectNameTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 1).Value
+CustomerTextBox.Value = ThisWorkbook.Worksheets("Projectfo").Cells(2, 2).Value
+DateTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 3).Value
+InstDesignerTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 4).Value
+ElectDesignerTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 5).Value
+InstAcceptorTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 6).Value
+ElectAcceptorTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 7).Value
+InstPublisherTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 8).Value
+ElectPublisherTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 9).Value
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub Save_Click()
+'==========================================================================================================================
+'Function: Sub to run when user want to exit
+'Input1: -
+'Output: -
+'Version History:
+
+Dim emptyRow As Long
+Dim InstStatusInt As Integer, ElectStatusInt As Integer
+
+'Define Instrumentation status integer for selected status
+If StatusPREInst = True Then
+    InstStatusInt = 1
+ElseIf StatusBFDInst = True Then
+    InstStatusInt = 2
+ElseIf StatusBFCInst = True Then
+    InstStatusInt = 3
+ElseIf StatusASBInst = True Then
+    InstStatusInt = 4
+Else
+    MsgBox "Problem with instrumentation status, please try again"
+End If
+
+'Make case for instrumentation status selected
+Select Case InstStatusInt
+    Case 1
+        ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 10).Value = "PRE"
+    Case 2
+        ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 10).Value = "BFD"
+    Case 3
+        ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 10).Value = "BFC"
+    Case 4
+        ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 10).Value = "ASB"
+    Case Else
+        MsgBox "Problem with instrumentation status, please try again"
+End Select
+
+'Define Electrification status integer for selected status
+If StatusPREElect = True Then
+    ElectStatusInt = 1
+ElseIf StatusBFDElect = True Then
+    ElectStatusInt = 2
+ElseIf StatusBFCElect = True Then
+    ElectStatusInt = 3
+ElseIf StatusASBElect = True Then
+    ElectStatusInt = 4
+Else
+    MsgBox "Problem with electrification status, please try again"
+End If
+
+'Make case for electrification status selected
+Select Case ElectStatusInt
+    Case 1
+        ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 11).Value = "PRE"
+    Case 2
+        ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 11).Value = "BFD"
+    Case 3
+        ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 11).Value = "BFC"
+    Case 4
+        ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 11).Value = "ASB"
+    Case Else
+        MsgBox "Problem with electrification status, please try again"
+End Select
+
+'Determine emptyRow
+'emptyRow = WorksheetFunction.CountA(Range("A:A")) + 1
+
+'Load given information to cells
+ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 1).Value = ProjectNameTextBox.Value
+ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 2).Value = CustomerTextBox.Value
+ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 3).Value = DateTextBox.Value
+ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 4).Value = InstDesignerTextBox.Value
+ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 5).Value = ElectDesignerTextBox.Value
+ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 6).Value = InstAcceptorTextBox.Value
+ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 7).Value = ElectAcceptorTextBox.Value
+ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 8).Value = InstPublisherTextBox.Value
+ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 9).Value = ElectPublisherTextBox.Value
+
+End Sub
+'------------------ENDSUB----------------------
+
+'==========================================================================================================================
+Private Sub UserForm_Initialize()
+'==========================================================================================================================
+'Function: Initialize ProjectInfo Userform
+'Input1: -
+'Output: -
+'Version History:
+
+Dim InstStatus As String, ElectStatus As String
+
+'Find value for Project Name if any'
+If IsEmpty(Range("A2")) = True Then
+    ProjectNameTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 1).Value
+Else
+    ProjectNameTextBox.Value = ""
+End If
+
+'Find value for Customer if any'
+If IsEmpty(Range("B2")) = True Then
+    CustomerTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 2).Value
+Else
+    CustomerTextBox.Value = ""
+End If
+
+'Find value for Date if any'
+If IsEmpty(Range("C2")) = True Then
+    DateTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 3).Value
+Else
+    DateTextBox.Value = ""
+End If
+
+'Find value for Instrumentation Designer if any'
+If IsEmpty(Range("D2")) = True Then
+    InstDesignerTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 4).Value
+Else
+    InstDesignerTextBox.Value = ""
+End If
+
+'Find value for Electrical Designer if any'
+If IsEmpty(Range("E2")) = True Then
+    ElectDesignerTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 5).Value
+Else
+    ElectDesignerTextBox.Value = ""
+End If
+
+'Find value for Instrumentation Acceptor if any'
+If IsEmpty(Range("F2")) = True Then
+    InstAcceptorTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 6).Value
+Else
+    InstAcceptorTextBox.Value = ""
+End If
+
+'Find value for Electrical Acceptor if any'
+If IsEmpty(Range("G2")) = True Then
+    ElectAcceptorTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 7).Value
+Else
+    ElectAcceptorTextBox.Value = ""
+End If
+
+'Find value for Instrumentation Publisher if any'
+If IsEmpty(Range("H2")) = True Then
+    InstPublisherTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 8).Value
+Else
+    InstPublisherTextBox.Value = ""
+End If
+
+'Find value for Electrical Publisher if any'
+If IsEmpty(Range("I2")) = True Then
+    ElectPublisherTextBox.Value = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 9).Value
+Else
+    ElectPublisherTextBox.Value = ""
+End If
+
+'Define Inst- & ElectStatus
+InstStatus = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 10).Value
+ElectStatus = ThisWorkbook.Worksheets("ProjectInfo").Cells(2, 11).Value
+
+'Case to select which status is selected for instrumentation
+Select Case InstStatus
+    Case "PRE"
+        StatusPREInst = True
+    Case "BFD"
+        StatusBFDInst = True
+    Case "BFC"
+        StatusBFCInst = True
+    Case "ASB"
+        StatusASBInst = True
+    Case Else
+        StatusPREInst = False
+        StatusBFDInst = False
+        StatusBFCInst = False
+        StatusASBInst = False
+End Select
+
+'Case to select which status is selected for electrification
+Select Case ElectStatus
+    Case "PRE"
+        StatusPREElect = True
+    Case "BFD"
+        StatusBFDElect = True
+    Case "BFC"
+        StatusBFCElect = True
+    Case "ASB"
+        StatusASBElect = True
+    Case Else
+        StatusPREInst = False
+        StatusBFDInst = False
+        StatusBFCInst = False
+        StatusASBInst = False
+End Select
+
+End Sub
+'------------------ENDSUB----------------------
